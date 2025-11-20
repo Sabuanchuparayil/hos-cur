@@ -4,3 +4,9 @@ node_modules/
 .env
 dist/
 duplicates_backup/
+node_modules/
+dist/
+duplicates_backup/
+clean/
+.vite/
+.DS_Store
