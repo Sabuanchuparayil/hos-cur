@@ -1,9 +1,21 @@
 {
   "build": {
-    "builder": "NIXPACKS"
+    "builder": "NIXPACKS",
+    "nixpacksPlan": {
+      "phases": {
+        "setup": {
+          "nixPkgs": ["nodejs_22"]
+        },
+        "install": {
+          "cmds": ["npm ci"]
+        },
+        "build": {
+          "cmds": ["npm run build"]
+        }
+      }
+    }
   },
   "deploy": {
-    "startCommand": "npx serve -s dist",
-    "staticPublishPath": "dist"
+    "startCommand": "npx serve -s dist"
   }
 }
