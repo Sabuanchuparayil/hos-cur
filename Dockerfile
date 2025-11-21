@@ -15,9 +15,11 @@ FROM node:22-alpine
 WORKDIR /app
 RUN npm install -g serve
 
+# Always remove old dist to avoid cached layers
+RUN rm -rf /app/dist
+
 # Copy built assets from build stage
 COPY --from=build /app/dist /app/dist
 
 EXPOSE 5173
 CMD ["serve", "-s", "/app/dist", "-l", "5173"]
-# BUST-1763700585
