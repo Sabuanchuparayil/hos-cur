@@ -1,0 +1,8 @@
+[
+  {
+    "id": "default",
+    "name": "Default Theme",
+    "cssFile": "/default-theme.css",
+    "isCustom": false
+  }
+]
