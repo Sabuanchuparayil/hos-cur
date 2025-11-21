@@ -52,7 +52,7 @@ export const ThemeProvider: React.FC<{ children: ReactNode }> = ({ children }) =
     const fetchThemes = async () => {
         setIsLoading(true);
         try {
-            const themes = await apiService.fetchPlatformThemes();
+            const themes = await fetch("/themes.json").then(r => r.json())();
             setPlatformThemes(themes);
         } catch (error) {
             console.error("Failed to fetch platform themes:", error);

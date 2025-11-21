@@ -1,3 +1,4 @@
+import { injectThemeStyles } from "../services/themeStyleService";
 import { ThemeConfiguration, Theme } from '../types';
 
 /**
