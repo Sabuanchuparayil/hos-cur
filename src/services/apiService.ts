@@ -1,83 +1,83 @@
-// apiService.ts
-import axios from "axios";
-
-// Auto-detect backend URL (prod or dev)
-const BASE_URL =
-  import.meta.env.VITE_API_URL ||
-  "https://hos-backend-production-31dc.up.railway.app"; // fallback to Railway
-
-console.log("API Base URL:", BASE_URL);
-
-const api = axios.create({
-  baseURL: BASE_URL,
-  withCredentials: false,
-  headers: {
-    "Content-Type": "application/json",
-  },
-});
-
-// -------- AUTH ----------
-export const login = (email: string, password: string) =>
-  api.post("/auth/login", { email, password });
-
-export const register = (data: any) =>
-  api.post("/auth/register", data);
-
-// -------- USERS ----------
-export const getUsers = () => api.get("/users");
-export const getUserById = (id: number) => api.get(`/users/${id}`);
-export const updateUser = (id: number, data: any) =>
-  api.put(`/users/${id}`, data);
-export const deleteUser = (id: number) => api.delete(`/users/${id}`);
-
-// -------- PRODUCTS ----------
-export const getProducts = () => api.get("/products");
-export const getProduct = (id: number) => api.get(`/products/${id}`);
-export const createProduct = (data: any) => api.post("/products", data);
-export const updateProduct = (id: number, data: any) =>
-  api.put(`/products/${id}`, data);
-export const deleteProduct = (id: number) => api.delete(`/products/${id}`);
-
-// -------- ORDERS ----------
-export const getOrders = () => api.get("/orders");
-export const getOrder = (id: number) => api.get(`/orders/${id}`);
-export const updateOrder = (id: number, data: any) =>
-  api.put(`/orders/${id}`, data);
-
-export default api;
-import { Address, Carrier, HomePageContent, IntegrationSettings, Order, Product, Promotion, ReturnRequest, Role, Seller, ThemeConfiguration, Transaction, User, UserAddress, ShippingOption, ProductReview } from '../types';
-import { TaxRates } from '../contexts/FinancialsContext';
-import { MOCK_USERS } from '../data/users';
-import { MOCK_ROLES } from '../data/roles';
-import { MOCK_PRODUCTS } from '../data/products';
-import { MOCK_SELLERS } from '../data/sellers';
-import { MOCK_ORDERS } from '../data/orders';
-import { MOCK_RETURN_REQUESTS } from '../data/returns';
-import { MOCK_TRANSACTIONS } from '../data/transactions';
-import { MOCK_THEME_CONFIGURATIONS } from '../data/themes';
-import { INITIAL_INTEGRATION_SETTINGS } from '../data/integrations';
-import { MOCK_HOME_PAGE_CONTENT } from '../data/content';
-import { MOCK_REVIEWS } from '../data/reviews';
-import { MOCK_CARRIERS } from '../data/carriers';
-import { MOCK_PROMOTIONS } from '../data/promotions';
-import { MOCK_TRACKING_HISTORY } from '../data/tracking';
-
-// In-memory data stores
-let users: User[] = JSON.parse(JSON.stringify(MOCK_USERS));
-let roles: Role[] = JSON.parse(JSON.stringify(MOCK_ROLES));
-let products: Product[] = JSON.parse(JSON.stringify(MOCK_PRODUCTS));
-let sellers: Seller[] = JSON.parse(JSON.stringify(MOCK_SELLERS));
-let orders: Order[] = JSON.parse(JSON.stringify(MOCK_ORDERS));
-let returnRequests: ReturnRequest[] = JSON.parse(JSON.stringify(MOCK_RETURN_REQUESTS));
-let transactions: Transaction[] = JSON.parse(JSON.stringify(MOCK_TRANSACTIONS));
-let platformThemes: ThemeConfiguration[] = JSON.parse(JSON.stringify(MOCK_THEME_CONFIGURATIONS));
-let integrationSettings: IntegrationSettings = JSON.parse(JSON.stringify(INITIAL_INTEGRATION_SETTINGS));
-let homePageContent: HomePageContent = JSON.parse(JSON.stringify(MOCK_HOME_PAGE_CONTENT));
-let reviews: ProductReview[] = JSON.parse(JSON.stringify(MOCK_REVIEWS));
-let carriers: Carrier[] = JSON.parse(JSON.stringify(MOCK_CARRIERS));
-let promotions: Promotion[] = JSON.parse(JSON.stringify(MOCK_PROMOTIONS));
-let taxRates: TaxRates = { 'GB': 0.20, 'US': 0.08, 'CA': 0.13 };
-
+// // apiService.ts
+// import axios from "axios";
+// 
+// // Auto-detect backend URL (prod or dev)
+// const BASE_URL =
+//   import.meta.env.VITE_API_URL ||
+//   "https://hos-backend-production-31dc.up.railway.app"; // fallback to Railway
+// 
+// console.log("API Base URL:", BASE_URL);
+// 
+// const api = axios.create({
+//   baseURL: BASE_URL,
+//   withCredentials: false,
+//   headers: {
+//     "Content-Type": "application/json",
+//   },
+// });
+// 
+// // -------- AUTH ----------
+// export const login = (email: string, password: string) =>
+//   api.post("/auth/login", { email, password });
+// 
+// export const register = (data: any) =>
+//   api.post("/auth/register", data);
+// 
+// // -------- USERS ----------
+// export const getUsers = () => api.get("/users");
+// export const getUserById = (id: number) => api.get(`/users/${id}`);
+// export const updateUser = (id: number, data: any) =>
+//   api.put(`/users/${id}`, data);
+// export const deleteUser = (id: number) => api.delete(`/users/${id}`);
+// 
+// // -------- PRODUCTS ----------
+// export const getProducts = () => api.get("/products");
+// export const getProduct = (id: number) => api.get(`/products/${id}`);
+// export const createProduct = (data: any) => api.post("/products", data);
+// export const updateProduct = (id: number, data: any) =>
+//   api.put(`/products/${id}`, data);
+// export const deleteProduct = (id: number) => api.delete(`/products/${id}`);
+// 
+// // -------- ORDERS ----------
+// export const getOrders = () => api.get("/orders");
+// export const getOrder = (id: number) => api.get(`/orders/${id}`);
+// export const updateOrder = (id: number, data: any) =>
+//   api.put(`/orders/${id}`, data);
+// 
+// export default api;
+// import { Address, Carrier, HomePageContent, IntegrationSettings, Order, Product, Promotion, ReturnRequest, Role, Seller, ThemeConfiguration, Transaction, User, UserAddress, ShippingOption, ProductReview } from '../types';
+// import { TaxRates } from '../contexts/FinancialsContext';
+// import { MOCK_USERS } from '../data/users';
+// import { MOCK_ROLES } from '../data/roles';
+// import { MOCK_PRODUCTS } from '../data/products';
+// import { MOCK_SELLERS } from '../data/sellers';
+// import { MOCK_ORDERS } from '../data/orders';
+// import { MOCK_RETURN_REQUESTS } from '../data/returns';
+// import { MOCK_TRANSACTIONS } from '../data/transactions';
+// import { MOCK_THEME_CONFIGURATIONS } from '../data/themes';
+// import { INITIAL_INTEGRATION_SETTINGS } from '../data/integrations';
+// import { MOCK_HOME_PAGE_CONTENT } from '../data/content';
+// import { MOCK_REVIEWS } from '../data/reviews';
+// import { MOCK_CARRIERS } from '../data/carriers';
+// import { MOCK_PROMOTIONS } from '../data/promotions';
+// import { MOCK_TRACKING_HISTORY } from '../data/tracking';
+// 
+// // In-memory data stores
+// let users: User[] = JSON.parse(JSON.stringify(MOCK_USERS));
+// let roles: Role[] = JSON.parse(JSON.stringify(MOCK_ROLES));
+// let products: Product[] = JSON.parse(JSON.stringify(MOCK_PRODUCTS));
+// let sellers: Seller[] = JSON.parse(JSON.stringify(MOCK_SELLERS));
+// let orders: Order[] = JSON.parse(JSON.stringify(MOCK_ORDERS));
+// let returnRequests: ReturnRequest[] = JSON.parse(JSON.stringify(MOCK_RETURN_REQUESTS));
+// let transactions: Transaction[] = JSON.parse(JSON.stringify(MOCK_TRANSACTIONS));
+// let platformThemes: ThemeConfiguration[] = JSON.parse(JSON.stringify(MOCK_THEME_CONFIGURATIONS));
+// let integrationSettings: IntegrationSettings = JSON.parse(JSON.stringify(INITIAL_INTEGRATION_SETTINGS));
+// let homePageContent: HomePageContent = JSON.parse(JSON.stringify(MOCK_HOME_PAGE_CONTENT));
+// let reviews: ProductReview[] = JSON.parse(JSON.stringify(MOCK_REVIEWS));
+// let carriers: Carrier[] = JSON.parse(JSON.stringify(MOCK_CARRIERS));
+// let promotions: Promotion[] = JSON.parse(JSON.stringify(MOCK_PROMOTIONS));
+// let taxRates: TaxRates = { 'GB': 0.20, 'US': 0.08, 'CA': 0.13 };
+// 
 const mockApi = <T>(data: T, delay = 300): Promise<T> => {
     return new Promise((resolve) => {
         setTimeout(() => resolve(JSON.parse(JSON.stringify(data))), delay);
