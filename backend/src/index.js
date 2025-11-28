@@ -30,6 +30,9 @@ const prisma = new PrismaClient({
 });
 const PORT = process.env.PORT || 3001;
 
+// Trust proxy (required for Railway and other reverse proxies)
+app.set('trust proxy', true);
+
 // Middleware
 app.use(cors({
   origin: process.env.FRONTEND_URL || '*',

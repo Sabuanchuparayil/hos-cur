@@ -76,40 +76,49 @@ export const AdminProductsPage: React.FC<AdminProductsPageProps> = ({ products, 
   const [fandomFilter, setFandomFilter] = useState('all');
 
   const baseProducts = useMemo(() => {
+    const safeProducts = Array.isArray(products) ? products : [];
     if (user?.role === 'seller') {
-      return products.filter(p => p.sellerId === user.id);
+      return safeProducts.filter(p => p?.sellerId === user.id);
     }
-    return products;
+    return safeProducts;
   }, [products, user]);
 
   const availableFandoms = useMemo(() => {
-      return [...new Set(baseProducts.map(p => p.taxonomy.fandom))];
+      const safeBaseProducts = Array.isArray(baseProducts) ? baseProducts : [];
+      return [...new Set(safeBaseProducts.map(p => p?.taxonomy?.fandom).filter(Boolean))];
   }, [baseProducts]);
 
   const filteredProducts = useMemo(() => {
-    let filtered = baseProducts;
+    const safeBaseProducts = Array.isArray(baseProducts) ? baseProducts : [];
+    let filtered = safeBaseProducts;
 
     if (searchQuery.trim()) {
         const lowercasedQuery = searchQuery.toLowerCase();
-        filtered = filtered.filter(p =>
-            p.name.en.toLowerCase().includes(lowercasedQuery) ||
-            p.sku.toLowerCase().includes(lowercasedQuery) ||
-            (p.barcode && p.barcode.toLowerCase().includes(lowercasedQuery)) ||
-            (p.variations && p.variations.some(v => v.sku.toLowerCase().includes(lowercasedQuery)))
-        );
+        filtered = filtered.filter(p => {
+            if (!p) return false;
+            const nameStr = typeof p.name === 'object' && p.name?.en ? p.name.en.toLowerCase() : (typeof p.name === 'string' ? p.name.toLowerCase() : '');
+            const skuStr = (p.sku || '').toLowerCase();
+            const barcodeStr = (p.barcode || '').toLowerCase();
+            return nameStr.includes(lowercasedQuery) ||
+                skuStr.includes(lowercasedQuery) ||
+                barcodeStr.includes(lowercasedQuery) ||
+                (Array.isArray(p.variations) && p.variations.some(v => (v?.sku || '').toLowerCase().includes(lowercasedQuery)));
+        });
     }
 
     if (stockFilter !== 'all') {
         filtered = filtered.filter(p => {
-            if (stockFilter === 'in_stock') return p.stock > 10;
-            if (stockFilter === 'low_stock') return p.stock > 0 && p.stock <= 10;
-            if (stockFilter === 'out_of_stock') return p.stock === 0;
+            if (!p) return false;
+            const stock = p.stock ?? 0;
+            if (stockFilter === 'in_stock') return stock > 10;
+            if (stockFilter === 'low_stock') return stock > 0 && stock <= 10;
+            if (stockFilter === 'out_of_stock') return stock === 0;
             return true;
         });
     }
     
     if (fandomFilter !== 'all') {
-        filtered = filtered.filter(p => p.taxonomy.fandom === fandomFilter);
+        filtered = filtered.filter(p => p?.taxonomy?.fandom === fandomFilter);
     }
 
     return filtered;
@@ -182,8 +191,9 @@ export const AdminProductsPage: React.FC<AdminProductsPageProps> = ({ products, 
     const csvRows = [headers.join(',')];
 
     for (const product of filteredProducts) {
-        const mainStock = product.inventory.find(inv => inv.centreId === 'main')?.stock || 0;
-        const londonStock = product.inventory.find(inv => inv.centreId === 'london')?.stock || 0;
+        const safeInventory = Array.isArray(product?.inventory) ? product.inventory : [];
+        const mainStock = safeInventory.find(inv => inv?.centreId === 'main')?.stock || 0;
+        const londonStock = safeInventory.find(inv => inv?.centreId === 'london')?.stock || 0;
 
         const row = [
             product.id,
@@ -300,20 +310,24 @@ export const AdminProductsPage: React.FC<AdminProductsPageProps> = ({ products, 
             </tr>
           </thead>
           <tbody>
-            {filteredProducts.length > 0 ? filteredProducts.map(product => (
+            {filteredProducts.length > 0 ? filteredProducts.map(product => {
+              if (!product) return null;
+              const productName = typeof product.name === 'object' && product.name?.en ? product.name.en : (typeof product.name === 'string' ? product.name : 'Product');
+              const mediaUrl = Array.isArray(product.media) && product.media.length > 0 ? product.media[0]?.url : '';
+              return (
               <tr key={product.id} className="border-b border-[--border-color] hover:bg-[--bg-tertiary]">
                 <td className="p-4">
-                  <img src={product.media[0]?.url} alt={product.name.en} className="w-16 h-16 object-cover rounded-md" />
+                  {mediaUrl && <img src={mediaUrl} alt={productName} className="w-16 h-16 object-cover rounded-md" />}
                 </td>
                 <td className="p-4 font-bold text-[--text-primary]">
-                    {product.name.en}
+                    {productName}
                     {product.hasVariations && <span className="ml-2 text-xs bg-blue-100 text-blue-800 font-semibold px-2 py-0.5 rounded-full">Variations</span>}
                 </td>
-                <td className="p-4 text-[--text-muted]">{product.sku}</td>
+                <td className="p-4 text-[--text-muted]">{product.sku || 'N/A'}</td>
                 <td className="p-4 text-[--text-muted]">{product.barcode || 'N/A'}</td>
-                <td className="p-4 text-[--text-muted]">{product.taxonomy.fandom} / {product.taxonomy.subCategory}</td>
-                <td className="p-4 text-[--text-primary]">{getDisplayPrice(product.pricing)}</td>
-                <td className={`p-4 font-bold ${product.stock > 10 ? 'text-green-600' : (product.stock > 0 ? 'text-orange-500' : 'text-red-600')}`}>{product.stock}</td>
+                <td className="p-4 text-[--text-muted]">{product.taxonomy?.fandom || 'N/A'} / {product.taxonomy?.subCategory || 'N/A'}</td>
+                <td className="p-4 text-[--text-primary]">{getDisplayPrice(product.pricing || {})}</td>
+                <td className={`p-4 font-bold ${(product.stock || 0) > 10 ? 'text-green-600' : ((product.stock || 0) > 0 ? 'text-orange-500' : 'text-red-600')}`}>{product.stock || 0}</td>
                 <td className="p-4">
                   <div className="flex gap-2">
                     <button onClick={() => handleOpenModalForEdit(product)} className="text-[--accent] hover:text-[--accent-hover]">Edit</button>
@@ -321,7 +335,8 @@ export const AdminProductsPage: React.FC<AdminProductsPageProps> = ({ products, 
                   </div>
                 </td>
               </tr>
-            )) : (
+              );
+            }) : (
               <tr><td colSpan={8} className="text-center p-8 text-[--text-muted]">{baseProducts.length === 0 ? 'You have not added any products yet.' : 'No products match the current filters.'}</td></tr>
             )}
           </tbody>
@@ -330,17 +345,21 @@ export const AdminProductsPage: React.FC<AdminProductsPageProps> = ({ products, 
 
       {/* Mobile Card View */}
       <div className="block md:hidden space-y-4">
-        {filteredProducts.length > 0 ? filteredProducts.map(product => (
+        {filteredProducts.length > 0 ? filteredProducts.map(product => {
+          if (!product) return null;
+          const productName = typeof product.name === 'object' && product.name?.en ? product.name.en : (typeof product.name === 'string' ? product.name : 'Product');
+          const mediaUrl = Array.isArray(product.media) && product.media.length > 0 ? product.media[0]?.url : '';
+          return (
           <div key={product.id} className="bg-[--bg-secondary] rounded-lg shadow-lg p-4 space-y-3">
             <div className="flex items-start justify-between gap-4">
               <div className="flex items-start gap-4 flex-grow">
-                <img src={product.media[0]?.url} alt={product.name.en} className="w-20 h-20 object-cover rounded-md" />
+                {mediaUrl && <img src={mediaUrl} alt={productName} className="w-20 h-20 object-cover rounded-md" />}
                 <div className="flex-grow">
                   <h3 className="font-bold text-[--text-primary] text-lg">
-                      {product.name.en}
+                      {productName}
                       {product.hasVariations && <span className="ml-2 text-xs bg-blue-100 text-blue-800 font-semibold px-2 py-0.5 rounded-full">Variations</span>}
                   </h3>
-                  <p className="text-sm text-[--text-muted]">SKU: {product.sku}</p>
+                  <p className="text-sm text-[--text-muted]">SKU: {product.sku || 'N/A'}</p>
                   <p className="text-sm text-[--text-muted]">Barcode: {product.barcode || 'N/A'}</p>
                 </div>
               </div>
@@ -352,19 +371,20 @@ export const AdminProductsPage: React.FC<AdminProductsPageProps> = ({ products, 
             <div className="grid grid-cols-3 gap-2 text-center text-sm border-t border-b border-[--border-color] py-2">
               <div>
                 <p className="text-xs text-[--text-muted]">Category</p>
-                <p className="font-semibold text-[--text-secondary] truncate">{product.taxonomy.subCategory}</p>
+                <p className="font-semibold text-[--text-secondary] truncate">{product.taxonomy?.subCategory || 'N/A'}</p>
               </div>
               <div>
                 <p className="text-xs text-[--text-muted]">Price</p>
-                <p className="font-semibold text-[--text-primary]">{getDisplayPrice(product.pricing)}</p>
+                <p className="font-semibold text-[--text-primary]">{getDisplayPrice(product.pricing || {})}</p>
               </div>
               <div>
                 <p className="text-xs text-[--text-muted]">Stock</p>
-                <p className={`font-bold ${product.stock > 10 ? 'text-green-600' : (product.stock > 0 ? 'text-orange-500' : 'text-red-600')}`}>{product.stock}</p>
+                <p className={`font-bold ${(product.stock || 0) > 10 ? 'text-green-600' : ((product.stock || 0) > 0 ? 'text-orange-500' : 'text-red-600')}`}>{product.stock || 0}</p>
               </div>
             </div>
           </div>
-        )) : noProductsMessage}
+          );
+        }) : noProductsMessage}
       </div>
       
       {isModalOpen && (
