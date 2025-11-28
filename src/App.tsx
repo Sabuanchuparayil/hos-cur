@@ -331,9 +331,9 @@ const AppContent: React.FC = () => {
           reviewsApi.getReviews(),
         ]);
 
-        // Extract values, using empty arrays/null for failed requests
+        // Extract values, using fallback for failed requests OR null responses
         const getValue = <T,>(result: PromiseSettledResult<T>, fallback: T): T => 
-          result.status === 'fulfilled' ? result.value : fallback;
+          result.status === 'fulfilled' && result.value != null ? result.value : fallback;
 
         setProducts(getValue(results[0], []));
         setSellers(getValue(results[1], []));
@@ -357,6 +357,7 @@ const AppContent: React.FC = () => {
   }, []);
   
   const productsWithDerivedData = useMemo(() => {
+    if (!products || !Array.isArray(products)) return [];
     return products.map(product => {
         const productReviews = reviews.filter(r => r.productId === product.id);
         const reviewCount = productReviews.length;
