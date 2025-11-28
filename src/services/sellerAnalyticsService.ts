@@ -7,7 +7,11 @@ import { ProductWithTotalStock, Order, SellerAnalyticsData, BIInsight } from '..
  * @returns An array of orders relevant to the seller.
  */
 const getSellerOrders = (sellerId: number, orders: Order[]): Order[] => {
-    return orders.filter(order => order.items.some(item => item.sellerId === sellerId));
+    const safeOrders = Array.isArray(orders) ? orders : [];
+    return safeOrders.filter(order => {
+        if (!order?.items || !Array.isArray(order.items)) return false;
+        return order.items.some(item => item?.productId === sellerId || item?.sellerId === sellerId);
+    });
 };
 
 /**
@@ -18,21 +22,29 @@ const getSellerOrders = (sellerId: number, orders: Order[]): Order[] => {
  * @returns A SellerAnalyticsData object.
  */
 export const generateSellerAnalytics = (sellerId: number, allProducts: ProductWithTotalStock[], allOrders: Order[]): SellerAnalyticsData => {
-    const sellerOrders = getSellerOrders(sellerId, allOrders);
-    const sellerProducts = allProducts.filter(p => p.sellerId === sellerId);
+    const safeProducts = Array.isArray(allProducts) ? allProducts : [];
+    const safeOrders = Array.isArray(allOrders) ? allOrders : [];
+    const sellerOrders = getSellerOrders(sellerId, safeOrders);
+    const sellerProducts = safeProducts.filter(p => p?.sellerId === sellerId);
 
     let totalRevenue = 0;
     let totalItemsSold = 0;
     const productSales: { [productId: number]: number } = {};
 
     sellerOrders.forEach(order => {
+        if (!order?.items || !Array.isArray(order.items)) return;
+        const currency = order.currency || 'GBP';
         order.items.forEach(item => {
-            if (item.sellerId === sellerId) {
-                const price = item.pricing[order.currency] || 0;
+            if (item?.productId === sellerId || item?.sellerId === sellerId) {
+                const price = item?.price || (item?.pricing && typeof item.pricing === 'object' ? item.pricing[currency] : 0) || 0;
+                const quantity = item?.quantity || 0;
                 // Note: In a real app, you'd convert currencies to a standard one (e.g., USD)
-                totalRevenue += price * item.quantity;
-                totalItemsSold += item.quantity;
-                productSales[item.id] = (productSales[item.id] || 0) + item.quantity;
+                totalRevenue += price * quantity;
+                totalItemsSold += quantity;
+                const itemId = item?.id || item?.productId;
+                if (itemId) {
+                    productSales[itemId] = (productSales[itemId] || 0) + quantity;
+                }
             }
         });
     });
@@ -79,20 +91,28 @@ export const generateBIInsights = (analyticsData: SellerAnalyticsData, currency:
     const insights: BIInsight[] = [];
     
     // Insight 1: Low stock warning for top sellers
-    analyticsData.topSellingProducts.forEach(product => {
-        if (product.stock > 0 && product.stock <= 10) {
-            insights.push({
-                type: 'warning',
-                message: `Your top-selling item, "${product.name.en}", is running low on stock (${product.stock} left). Consider restocking soon.`
-            });
-        }
-         if (product.stock === 0) {
-            insights.push({
-                type: 'warning',
-                message: `Your top-selling item, "${product.name.en}", is out of stock. Restock to avoid missing sales.`
-            });
-        }
-    });
+    if (analyticsData?.topSellingProducts && Array.isArray(analyticsData.topSellingProducts)) {
+        analyticsData.topSellingProducts.forEach(product => {
+            if (!product) return;
+            const productName = typeof product.name === 'object' && product.name?.en 
+                ? product.name.en 
+                : (typeof product.name === 'string' ? product.name : 'Product');
+            const stock = product.stock ?? 0;
+            
+            if (stock > 0 && stock <= 10) {
+                insights.push({
+                    type: 'warning',
+                    message: `Your top-selling item, "${productName}", is running low on stock (${stock} left). Consider restocking soon.`
+                });
+            }
+            if (stock === 0) {
+                insights.push({
+                    type: 'warning',
+                    message: `Your top-selling item, "${productName}", is out of stock. Restock to avoid missing sales.`
+                });
+            }
+        });
+    }
 
     // Insight 2: High AOV suggestion
     if (analyticsData.averageOrderValue > 50) {

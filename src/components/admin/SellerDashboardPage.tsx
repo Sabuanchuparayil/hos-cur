@@ -26,8 +26,9 @@ const SellerDashboard: React.FC<SellerDashboardPageProps> = ({ products, orders,
     const { t } = useLanguage();
 
     const currentSeller = useMemo(() => {
-        if (user?.role !== 'seller') return null;
-        return sellers.find(s => s.id === user.id);
+        if (user?.role !== 'seller' || !user?.id) return null;
+        const safeSellers = Array.isArray(sellers) ? sellers : [];
+        return safeSellers.find(s => s?.userId === user.id);
     }, [sellers, user]);
 
     const sellerAnalytics = useMemo(() => {
@@ -95,17 +96,17 @@ const SellerDashboard: React.FC<SellerDashboardPageProps> = ({ products, orders,
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                         <AnalyticsCard
                             title={`Total Revenue (${currency})`}
-                            value={formatPrice(sellerAnalytics.totalRevenue, currency)}
+                            value={formatPrice(sellerAnalytics?.totalRevenue || 0, currency)}
                             description="All-time earnings from sales"
                         />
                         <AnalyticsCard
                             title="Total Items Sold"
-                            value={sellerAnalytics.totalItemsSold.toString()}
+                            value={(sellerAnalytics?.totalItemsSold || 0).toString()}
                             description="Total units sold across all products"
                         />
                         <AnalyticsCard
                             title={`Average Order Value (${currency})`}
-                            value={formatPrice(sellerAnalytics.averageOrderValue, currency)}
+                            value={formatPrice(sellerAnalytics?.averageOrderValue || 0, currency)}
                             description="Average value of orders with your items"
                         />
                     </div>
@@ -127,20 +128,25 @@ const SellerDashboard: React.FC<SellerDashboardPageProps> = ({ products, orders,
                     <div className="bg-[--bg-secondary] border border-[--border-color] p-6 rounded-lg shadow-lg">
                         <h3 className="text-xl font-bold font-cinzel text-[--text-primary] mb-4">Top 5 Selling Products</h3>
                         <ul className="space-y-1">
-                            {sellerAnalytics.topSellingProducts.length > 0 ? sellerAnalytics.topSellingProducts.map(p => (
-                                <li key={p.id}>
-                                    <Link to={`/product/${p.id}`} className="flex items-center justify-between hover:bg-[--bg-tertiary] p-2 rounded-md transition-colors">
-                                        <div className="flex items-center gap-4">
-                                            <img src={p.media[0]?.url} alt={t(p.name)} className="w-12 h-12 object-cover rounded" />
-                                            <div>
-                                                <p className="font-semibold text-[--text-secondary]">{t(p.name)}</p>
-                                                <p className="text-sm text-[--text-muted]">{p.sku}</p>
+                            {sellerAnalytics?.topSellingProducts && Array.isArray(sellerAnalytics.topSellingProducts) && sellerAnalytics.topSellingProducts.length > 0 ? sellerAnalytics.topSellingProducts.map(p => {
+                                if (!p) return null;
+                                const productName = typeof p.name === 'object' && p.name?.en ? p.name.en : (typeof p.name === 'string' ? p.name : 'Product');
+                                const mediaUrl = Array.isArray(p.media) && p.media.length > 0 ? p.media[0]?.url : '';
+                                return (
+                                    <li key={p.id}>
+                                        <Link to={`/product/${p.id}`} className="flex items-center justify-between hover:bg-[--bg-tertiary] p-2 rounded-md transition-colors">
+                                            <div className="flex items-center gap-4">
+                                                {mediaUrl && <img src={mediaUrl} alt={productName} className="w-12 h-12 object-cover rounded" />}
+                                                <div>
+                                                    <p className="font-semibold text-[--text-secondary]">{t(p.name)}</p>
+                                                    <p className="text-sm text-[--text-muted]">{p.sku || 'N/A'}</p>
+                                                </div>
                                             </div>
-                                        </div>
-                                        <span className="font-bold text-[--accent]">{p.unitsSold} units sold</span>
-                                    </Link>
-                                </li>
-                            )) : <p className="text-[--text-muted]">No sales data yet.</p>}
+                                            <span className="font-bold text-[--accent]">{(p as any).unitsSold || 0} units sold</span>
+                                        </Link>
+                                    </li>
+                                );
+                            }) : <p className="text-[--text-muted]">No sales data yet.</p>}
                         </ul>
                     </div>
                 </div>
@@ -149,7 +155,7 @@ const SellerDashboard: React.FC<SellerDashboardPageProps> = ({ products, orders,
                     <div className="bg-[--bg-secondary] border border-[--border-color] p-6 rounded-lg shadow-lg">
                         <h3 className="text-xl font-bold font-cinzel text-[--text-primary] mb-4">Current Balance</h3>
                         <div className="space-y-2">
-                            {Object.keys(currentSeller.financials.balance).length > 0 ? (
+                            {currentSeller?.financials && typeof currentSeller.financials === 'object' && currentSeller.financials.balance && typeof currentSeller.financials.balance === 'object' && Object.keys(currentSeller.financials.balance).length > 0 ? (
                                 Object.entries(currentSeller.financials.balance).map(([currency, amount]) => (
                                     (amount as number) > 0 && <p key={currency} className="text-2xl font-mono text-green-700">{formatPrice(amount as number, currency)}</p>
                                 ))
@@ -161,26 +167,32 @@ const SellerDashboard: React.FC<SellerDashboardPageProps> = ({ products, orders,
                     <div className="bg-[--bg-secondary] p-6 rounded-lg shadow-lg border border-[--accent]/30">
                         <h3 className="text-xl font-bold font-cinzel text-[--accent] mb-4">Insights from the Crystal Ball</h3>
                         <ul className="space-y-3">
-                            {biInsights.map((insight: BIInsight, index) => (
-                                <li key={index} className="flex items-start gap-3 text-sm">
-                                    <span className="mt-1">{insight.type === 'warning' ? '⚠️' : '💡'}</span>
-                                    <span className="text-[--text-secondary]">{insight.message}</span>
-                                </li>
-                            ))}
+                            {Array.isArray(biInsights) && biInsights.length > 0 ? biInsights.map((insight: BIInsight, index) => {
+                                if (!insight) return null;
+                                return (
+                                    <li key={index} className="flex items-start gap-3 text-sm">
+                                        <span className="mt-1">{insight.type === 'warning' ? '⚠️' : '💡'}</span>
+                                        <span className="text-[--text-secondary]">{insight.message || ''}</span>
+                                    </li>
+                                );
+                            }) : <li className="text-[--text-muted] text-sm">No insights available.</li>}
                         </ul>
                     </div>
                     
                     <div className="bg-[--bg-secondary] border border-[--border-color] p-6 rounded-lg shadow-lg">
                         <h3 className="text-xl font-bold font-cinzel text-[--text-primary] mb-4">Stock Overview</h3>
                         <div className="space-y-3 max-h-96 overflow-y-auto pr-2">
-                            {sellerProducts.map(p => (
-                                <div key={p.id} className="flex justify-between items-center text-sm">
-                                    <p className="text-[--text-secondary] truncate pr-2">{t(p.name)}</p>
-                                    <span className={`font-bold px-2 py-0.5 rounded-full text-xs ${getStockLevelClass(p.stock)}`}>
-                                        {p.stock} units
-                                    </span>
-                                </div>
-                            ))}
+                            {Array.isArray(sellerProducts) && sellerProducts.length > 0 ? sellerProducts.map(p => {
+                                if (!p) return null;
+                                return (
+                                    <div key={p.id} className="flex justify-between items-center text-sm">
+                                        <p className="text-[--text-secondary] truncate pr-2">{t(p.name)}</p>
+                                        <span className={`font-bold px-2 py-0.5 rounded-full text-xs ${getStockLevelClass(p.stock || 0)}`}>
+                                            {p.stock || 0} units
+                                        </span>
+                                    </div>
+                                );
+                            }) : <p className="text-[--text-muted]">No products found.</p>}
                         </div>
                         <Link to="/admin/products" className="block text-center mt-4 text-sm font-semibold text-[--accent] hover:text-[--accent-hover]">
                             Manage All Products &rarr;
