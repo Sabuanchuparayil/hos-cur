@@ -316,18 +316,9 @@ const AppContent: React.FC = () => {
     const fetchData = async () => {
       setIsLoading(true);
       try {
-        const [
-          productsData,
-          sellersData,
-          ordersData,
-          rolesData,
-          returnsData,
-          transactionsData,
-          themesData,
-          integrationsData,
-          contentData,
-          reviewsData,
-        ] = await Promise.all([
+        // Use Promise.allSettled to handle partial failures gracefully
+        // Some endpoints require auth and will fail for anonymous users
+        const results = await Promise.allSettled([
           productsApi.getProducts(),
           sellersApi.getSellers(),
           ordersApi.getOrders(),
@@ -340,20 +331,23 @@ const AppContent: React.FC = () => {
           reviewsApi.getReviews(),
         ]);
 
-        setProducts(productsData);
-        setSellers(sellersData);
-        setOrders(ordersData);
-        setRoles(rolesData);
-        setReturnRequests(returnsData);
-        setTransactions(transactionsData);
-        setPlatformThemes(themesData);
-        setIntegrationSettings(integrationsData);
-        setHomePageContent(contentData);
-        setReviews(reviewsData);
+        // Extract values, using empty arrays/null for failed requests
+        const getValue = <T,>(result: PromiseSettledResult<T>, fallback: T): T => 
+          result.status === 'fulfilled' ? result.value : fallback;
+
+        setProducts(getValue(results[0], []));
+        setSellers(getValue(results[1], []));
+        setOrders(getValue(results[2], []));
+        setRoles(getValue(results[3], []));
+        setReturnRequests(getValue(results[4], []));
+        setTransactions(getValue(results[5], []));
+        setPlatformThemes(getValue(results[6], []));
+        setIntegrationSettings(getValue(results[7], null));
+        setHomePageContent(getValue(results[8], null));
+        setReviews(getValue(results[9], []));
 
       } catch (error) {
         console.error("Failed to fetch initial data:", error);
-        // Here you could set an error state to show a message to the user
       } finally {
         setIsLoading(false);
       }
