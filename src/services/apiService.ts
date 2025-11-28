@@ -16,7 +16,7 @@ import {
 } from '../types';
 
 // API Base URL - defaults to Railway backend
-const BASE_URL = import.meta.env.VITE_API_URL || "https://hos-backend-production.up.railway.app";
+const BASE_URL = import.meta.env.VITE_API_URL || "https://backend-production-9a74.up.railway.app";
 
 console.log("API Base URL:", BASE_URL);
 
