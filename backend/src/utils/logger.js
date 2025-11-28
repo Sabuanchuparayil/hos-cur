@@ -49,8 +49,9 @@ const transports = [
   }),
 ];
 
-// Add file logging in production
-if (process.env.NODE_ENV === 'production') {
+// Only add file logging if explicitly enabled and NOT in container environment
+// In containers (like Railway), logs should go to stdout
+if (process.env.NODE_ENV === 'production' && process.env.ENABLE_FILE_LOGS === 'true') {
   transports.push(
     new winston.transports.File({
       filename: 'logs/error.log',
