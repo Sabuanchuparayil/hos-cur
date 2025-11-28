@@ -13,7 +13,7 @@ interface ActionItemsProps {
 }
 
 export const ActionItems: React.FC<ActionItemsProps> = ({ title, items }) => {
-    if (items.length === 0) {
+    if (!items || !Array.isArray(items) || items.length === 0) {
         return null;
     }
     

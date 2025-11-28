@@ -28,7 +28,8 @@ export const AdminOrderDetailPage: React.FC<AdminOrderDetailPageProps> = ({ orde
     const [notes, setNotes] = useState('');
     const [isFulfillmentModalOpen, setIsFulfillmentModalOpen] = useState(false);
 
-    const userRole = roles.find(r => r.id === user?.role);
+    // User.role is the role name (e.g., 'admin'), not the role ID
+    const userRole = roles.find(r => r.name === user?.role);
     const canEdit = userRole?.permissions.includes('write:orders');
     const canViewLog = userRole?.permissions.includes('read:order_audit_log');
 

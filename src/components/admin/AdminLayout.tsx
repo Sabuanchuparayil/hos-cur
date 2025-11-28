@@ -60,8 +60,16 @@ export const AdminLayout: React.FC<AdminLayoutProps> = ({ roles, user }) => {
 
   // Safety checks for roles and user
   const safeRoles = Array.isArray(roles) ? roles : [];
-  const userRole = safeRoles.find(r => r.id === user?.role);
-  const permissions = new Set(userRole?.permissions || []);
+  // User.role is the role name (e.g., 'admin'), not the role ID
+  const userRole = safeRoles.find(r => r.name === user?.role);
+  // For admin users, grant all permissions if role lookup fails (fallback)
+  const defaultPermissions = user?.role === 'admin' ? ['*'] : [];
+  const permissions = new Set(userRole?.permissions || defaultPermissions);
+  
+  // Helper to check permissions (handles '*' wildcard)
+  const hasPermission = (permission: string): boolean => {
+    return permissions.has('*') || permissions.has(permission);
+  };
 
   const closeSidebar = () => setIsSidebarOpen(false);
 
@@ -127,9 +135,9 @@ export const AdminLayout: React.FC<AdminLayoutProps> = ({ roles, user }) => {
                 isOpen={openSection === 'storefront'}
                 onToggle={() => toggleSection('storefront')}
             >
-                {permissions.has('read:products') && <NavLink to="/admin/products" className={navLinkClasses} onClick={closeSidebar}>Products</NavLink>}
-                {permissions.has('write:products') && <NavLink to="/admin/bulk-upload" className={navLinkClasses} onClick={closeSidebar}>Bulk Uploads</NavLink>}
-                {permissions.has('read:promotions') && <NavLink to="/admin/promotions" className={navLinkClasses} onClick={closeSidebar}>Promotions</NavLink>}
+                {hasPermission('read:products') && <NavLink to="/admin/products" className={navLinkClasses} onClick={closeSidebar}>Products</NavLink>}
+                {hasPermission('write:products') && <NavLink to="/admin/bulk-upload" className={navLinkClasses} onClick={closeSidebar}>Bulk Uploads</NavLink>}
+                {hasPermission('read:promotions') && <NavLink to="/admin/promotions" className={navLinkClasses} onClick={closeSidebar}>Promotions</NavLink>}
             </NavGroup>
 
             {/* Operations Group */}
@@ -140,10 +148,10 @@ export const AdminLayout: React.FC<AdminLayoutProps> = ({ roles, user }) => {
                 isOpen={openSection === 'operations'}
                 onToggle={() => toggleSection('operations')}
             >
-                 {permissions.has('read:orders') && <NavLink to="/admin/orders" className={navLinkClasses} onClick={closeSidebar}>Orders</NavLink>}
-                 {permissions.has('access:picking_dashboard') && <NavLink to="/admin/picking-dashboard" className={navLinkClasses} onClick={closeSidebar}>Picking Dashboard</NavLink>}
-                 {permissions.has('access:delivery_dashboard') && <NavLink to="/admin/delivery-dashboard" className={navLinkClasses} onClick={closeSidebar}>Delivery Dashboard</NavLink>}
-                 {permissions.has('manage:logistics') && <NavLink to="/admin/logistics" className={navLinkClasses} onClick={closeSidebar}>Logistics</NavLink>}
+                 {hasPermission('read:orders') && <NavLink to="/admin/orders" className={navLinkClasses} onClick={closeSidebar}>Orders</NavLink>}
+                 {hasPermission('access:picking_dashboard') && <NavLink to="/admin/picking-dashboard" className={navLinkClasses} onClick={closeSidebar}>Picking Dashboard</NavLink>}
+                 {hasPermission('access:delivery_dashboard') && <NavLink to="/admin/delivery-dashboard" className={navLinkClasses} onClick={closeSidebar}>Delivery Dashboard</NavLink>}
+                 {hasPermission('manage:logistics') && <NavLink to="/admin/logistics" className={navLinkClasses} onClick={closeSidebar}>Logistics</NavLink>}
                  <NavLink to="/admin/returns" className={navLinkClasses} onClick={closeSidebar}>Returns</NavLink>
             </NavGroup>
 
@@ -155,13 +163,13 @@ export const AdminLayout: React.FC<AdminLayoutProps> = ({ roles, user }) => {
                 isOpen={openSection === 'accounts'}
                 onToggle={() => toggleSection('accounts')}
             >
-                {permissions.has('read:sellers') && <NavLink to="/admin/sellers" className={navLinkClasses} onClick={closeSidebar}>Sellers</NavLink>}
-                {permissions.has('read:financials') && <NavLink to="/admin/financials" className={navLinkClasses} onClick={closeSidebar}>Financials</NavLink>}
+                {hasPermission('read:sellers') && <NavLink to="/admin/sellers" className={navLinkClasses} onClick={closeSidebar}>Sellers</NavLink>}
+                {hasPermission('read:financials') && <NavLink to="/admin/financials" className={navLinkClasses} onClick={closeSidebar}>Financials</NavLink>}
                 {user?.role === 'seller' && <NavLink to="/admin/banking" className={navLinkClasses} onClick={closeSidebar}>Banking & Payouts</NavLink>}
             </NavGroup>
             
             {/* Platform Group (Admin only) */}
-            {(permissions.has('manage:roles') || permissions.has('manage:content') || permissions.has('manage:themes') || permissions.has('manage:integrations')) && (
+            {(hasPermission('manage:roles') || hasPermission('manage:content') || hasPermission('manage:themes') || hasPermission('manage:integrations')) && (
                  <NavGroup 
                     title="Platform"
                     icon={<svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path fillRule="evenodd" d="M11.49 3.17c-.38-1.56-2.6-1.56-2.98 0a1.532 1.532 0 01-2.286.948c-1.372-.836-2.942.734-2.106 2.106.54.886.061 2.042-.947 2.287-1.561.379-1.561 2.6 0 2.978a1.532 1.532 0 01.947 2.287c-.836 1.372.734 2.942 2.106 2.106a1.532 1.532 0 012.287.947c.379 1.561 2.6 1.561 2.978 0a1.532 1.532 0 012.287-.947c1.372.836 2.942-.734 2.106-2.106a1.532 1.532 0 01-.947-2.287c1.561-.379 1.561-2.6 0-2.978a1.532 1.532 0 01-.947-2.287c.836-1.372-.734 2.942-2.106-2.106a1.532 1.532 0 01-2.287-.947zM10 13a3 3 0 100-6 3 3 0 000 6z" clipRule="evenodd" /></svg>}
@@ -169,11 +177,11 @@ export const AdminLayout: React.FC<AdminLayoutProps> = ({ roles, user }) => {
                     isOpen={openSection === 'platform'}
                     onToggle={() => toggleSection('platform')}
                 >
-                    {permissions.has('read:users') && <NavLink to="/admin/users" className={navLinkClasses} onClick={closeSidebar}>Users</NavLink>}
-                    {permissions.has('manage:roles') && <NavLink to="/admin/roles" className={navLinkClasses} onClick={closeSidebar}>Roles</NavLink>}
-                    {permissions.has('manage:content') && <NavLink to="/admin/content/home" className={navLinkClasses} onClick={closeSidebar}>Homepage Content</NavLink>}
-                    {permissions.has('manage:themes') && <NavLink to="/admin/platform-themes" className={navLinkClasses} onClick={closeSidebar}>Platform Themes</NavLink>}
-                    {permissions.has('manage:integrations') && <NavLink to="/admin/integrations" className={navLinkClasses} onClick={closeSidebar}>Integrations</NavLink>}
+                    {hasPermission('read:users') && <NavLink to="/admin/users" className={navLinkClasses} onClick={closeSidebar}>Users</NavLink>}
+                    {hasPermission('manage:roles') && <NavLink to="/admin/roles" className={navLinkClasses} onClick={closeSidebar}>Roles</NavLink>}
+                    {hasPermission('manage:content') && <NavLink to="/admin/content/home" className={navLinkClasses} onClick={closeSidebar}>Homepage Content</NavLink>}
+                    {hasPermission('manage:themes') && <NavLink to="/admin/platform-themes" className={navLinkClasses} onClick={closeSidebar}>Platform Themes</NavLink>}
+                    {hasPermission('manage:integrations') && <NavLink to="/admin/integrations" className={navLinkClasses} onClick={closeSidebar}>Integrations</NavLink>}
                 </NavGroup>
             )}
 
