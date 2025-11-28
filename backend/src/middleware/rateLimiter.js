@@ -7,7 +7,7 @@ const rateLimit = require('express-rate-limit');
 // Strict limit for authentication endpoints
 const authLimiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 5, // 5 attempts per window
+  max: 10, // 10 attempts per window
   message: 'Too many login attempts, please try again after 15 minutes',
   standardHeaders: true,
   legacyHeaders: false,
@@ -17,16 +17,16 @@ const authLimiter = rateLimit({
 // Standard limit for API endpoints
 const apiLimiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 100, // 100 requests per window
+  max: 500, // 500 requests per window
   message: 'Too many requests, please try again later',
   standardHeaders: true,
   legacyHeaders: false,
 });
 
-// Generous limit for read-only endpoints
+// Generous limit for read-only endpoints (handles page load with 15+ parallel requests)
 const publicLimiter = rateLimit({
   windowMs: 1 * 60 * 1000, // 1 minute
-  max: 60, // 60 requests per minute
+  max: 200, // 200 requests per minute
   message: 'Too many requests, please slow down',
   standardHeaders: true,
   legacyHeaders: false,
