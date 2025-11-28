@@ -43,8 +43,8 @@ export const generateSellerAnalytics = (sellerId: number, allProducts: ProductWi
                 // Note: In a real app, you'd convert currencies to a standard one (e.g., USD)
                 totalRevenue += price * quantity;
                 totalItemsSold += quantity;
-                // Use productId if available, otherwise use id (order item id)
-                const productId = item?.productId || item?.id;
+                // Use productId to track sales by product (productId is the foreign key to Product table)
+                const productId = item?.productId;
                 if (productId) {
                     productSales[productId] = (productSales[productId] || 0) + quantity;
                 }

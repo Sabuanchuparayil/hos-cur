@@ -49,7 +49,7 @@ const SellerDashboard: React.FC<SellerDashboardPageProps> = ({ products, orders,
         const newOrders = safeOrders.filter(o => 
             o?.status === 'Awaiting Shipment' && 
             Array.isArray(o.items) && 
-            o.items.some(i => i?.productId && i.productId === currentSeller.id)
+            o.items.some(i => i?.sellerId === currentSeller.id)
         );
         if (newOrders.length > 0) {
             items.push({
