@@ -10,7 +10,8 @@ const getSellerOrders = (sellerId: number, orders: Order[]): Order[] => {
     const safeOrders = Array.isArray(orders) ? orders : [];
     return safeOrders.filter(order => {
         if (!order?.items || !Array.isArray(order.items)) return false;
-        return order.items.some(item => item?.productId === sellerId || item?.sellerId === sellerId);
+        // OrderItem extends Product, so it has sellerId directly
+        return order.items.some(item => item?.sellerId === sellerId);
     });
 };
 
@@ -35,15 +36,17 @@ export const generateSellerAnalytics = (sellerId: number, allProducts: ProductWi
         if (!order?.items || !Array.isArray(order.items)) return;
         const currency = order.currency || 'GBP';
         order.items.forEach(item => {
-            if (item?.productId === sellerId || item?.sellerId === sellerId) {
+            // OrderItem extends Product, so it has sellerId directly
+            if (item?.sellerId === sellerId) {
                 const price = item?.price || (item?.pricing && typeof item.pricing === 'object' ? item.pricing[currency] : 0) || 0;
                 const quantity = item?.quantity || 0;
                 // Note: In a real app, you'd convert currencies to a standard one (e.g., USD)
                 totalRevenue += price * quantity;
                 totalItemsSold += quantity;
-                const itemId = item?.id || item?.productId;
-                if (itemId) {
-                    productSales[itemId] = (productSales[itemId] || 0) + quantity;
+                // Use productId if available, otherwise use id (order item id)
+                const productId = item?.productId || item?.id;
+                if (productId) {
+                    productSales[productId] = (productSales[productId] || 0) + quantity;
                 }
             }
         });

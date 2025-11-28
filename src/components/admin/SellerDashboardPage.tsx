@@ -28,7 +28,7 @@ const SellerDashboard: React.FC<SellerDashboardPageProps> = ({ products, orders,
     const currentSeller = useMemo(() => {
         if (user?.role !== 'seller' || !user?.id) return null;
         const safeSellers = Array.isArray(sellers) ? sellers : [];
-        return safeSellers.find(s => s?.userId === user.id);
+        return safeSellers.find(s => s?.id === user.id);
     }, [sellers, user]);
 
     const sellerAnalytics = useMemo(() => {
