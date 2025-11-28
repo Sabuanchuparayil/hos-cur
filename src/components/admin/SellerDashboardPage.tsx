@@ -44,7 +44,12 @@ const SellerDashboard: React.FC<SellerDashboardPageProps> = ({ products, orders,
         if (!currentSeller) return [];
         
         const items = [];
-        const newOrders = orders.filter(o => o.status === 'Awaiting Shipment' && o.items.some(i => i.sellerId === currentSeller.id));
+        const safeOrders = Array.isArray(orders) ? orders : [];
+        const newOrders = safeOrders.filter(o => 
+            o?.status === 'Awaiting Shipment' && 
+            Array.isArray(o.items) && 
+            o.items.some(i => i?.productId && i.productId === currentSeller.id)
+        );
         if (newOrders.length > 0) {
             items.push({
                 icon: '📦',
@@ -53,7 +58,13 @@ const SellerDashboard: React.FC<SellerDashboardPageProps> = ({ products, orders,
             });
         }
 
-        const lowStockProducts = products.filter(p => p.sellerId === currentSeller.id && p.stock > 0 && p.stock <= 5);
+        const safeProducts = Array.isArray(products) ? products : [];
+        const lowStockProducts = safeProducts.filter(p => 
+            p?.sellerId === currentSeller.id && 
+            p?.stock !== undefined && 
+            p.stock > 0 && 
+            p.stock <= 5
+        );
         if (lowStockProducts.length > 0) {
              items.push({
                 icon: '⚠️',
@@ -69,7 +80,8 @@ const SellerDashboard: React.FC<SellerDashboardPageProps> = ({ products, orders,
         return <div>Loading seller data...</div>;
     }
 
-    const sellerProducts = products.filter(p => p.sellerId === currentSeller.id);
+    const safeProducts = Array.isArray(products) ? products : [];
+    const sellerProducts = safeProducts.filter(p => p?.sellerId === currentSeller.id);
 
     return (
         <div>

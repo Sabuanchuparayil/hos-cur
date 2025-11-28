@@ -58,7 +58,9 @@ export const AdminLayout: React.FC<AdminLayoutProps> = ({ roles, user }) => {
   const { logout } = useAuth();
   const panelTitle = user?.role === 'admin' ? 'Admin Panel' : 'Seller Panel';
 
-  const userRole = roles.find(r => r.id === user?.role);
+  // Safety checks for roles and user
+  const safeRoles = Array.isArray(roles) ? roles : [];
+  const userRole = safeRoles.find(r => r.id === user?.role);
   const permissions = new Set(userRole?.permissions || []);
 
   const closeSidebar = () => setIsSidebarOpen(false);

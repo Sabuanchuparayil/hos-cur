@@ -13,18 +13,28 @@ interface PlatformDashboardProps {
 export const PlatformDashboard: React.FC<PlatformDashboardProps> = ({ products, orders, sellers }) => {
   const { formatPrice } = useCurrency();
   
-  const totalPlatformRevenue = orders.reduce((acc, order) => {
+  const safeOrders = Array.isArray(orders) ? orders : [];
+  const totalPlatformRevenue = safeOrders.reduce((acc, order) => {
     // FIX: The platformFee.base is already in the platform's base currency (GBP).
     // This provides a standardized value for accurate platform-wide reporting.
-    return acc + order.platformFee.base;
+    const platformFee = order?.platformFee;
+    if (platformFee && typeof platformFee === 'object' && 'base' in platformFee) {
+      return acc + (platformFee.base || 0);
+    }
+    return acc;
   }, 0);
   
-  const totalOrders = orders.length;
-  const activeSellers = sellers.filter(s => s.status === 'approved').length;
+  const totalOrders = safeOrders.length;
+  const safeSellers = Array.isArray(sellers) ? sellers : [];
+  const activeSellers = safeSellers.filter(s => s?.status === 'approved').length;
 
-  const topSellers = [...sellers]
-    .filter(s => s.status === 'approved')
-    .sort((a, b) => b.performance.totalSales - a.performance.totalSales)
+  const topSellers = [...safeSellers]
+    .filter(s => s?.status === 'approved')
+    .sort((a, b) => {
+      const aSales = a?.performance?.totalSales || 0;
+      const bSales = b?.performance?.totalSales || 0;
+      return bSales - aSales;
+    })
     .slice(0, 5);
 
   return (
@@ -63,9 +73,9 @@ export const PlatformDashboard: React.FC<PlatformDashboardProps> = ({ products, 
           <h3 className="text-xl font-bold font-cinzel text-[--text-primary] mb-4">Top Performing Sellers</h3>
           <ul className="space-y-4">
             {topSellers.map(seller => (
-              <li key={seller.id} className="flex items-center justify-between">
-                <span className="font-semibold text-[--text-secondary]">{seller.name}</span>
-                <span className="font-bold text-green-600">{formatPrice(seller.performance.totalSales, 'GBP')}</span>
+              <li key={seller?.id || 'unknown'} className="flex items-center justify-between">
+                <span className="font-semibold text-[--text-secondary]">{seller?.name || 'Unknown'}</span>
+                <span className="font-bold text-green-600">{formatPrice(seller?.performance?.totalSales || 0, 'GBP')}</span>
               </li>
             ))}
           </ul>
