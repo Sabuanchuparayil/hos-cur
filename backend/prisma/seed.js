@@ -27,8 +27,12 @@ async function main() {
 
   // Create users
   const hashedPassword = await bcrypt.hash('password123', 10);
+  const superAdminPassword = await bcrypt.hash('Admin@123', 10);
   
   const users = [
+    // Super Admin - Stephen Sam
+    { name: 'Stephen Sam', email: 'stephensam13@gmail.com', role: 'admin', phone: '', password: superAdminPassword },
+    // Other users
     { name: 'Albus Dumbledore', email: 'admin@hogwarts.edu', role: 'admin', phone: '123-456-7890' },
     { name: 'Ollivander', email: 'seller@diagonalley.com', role: 'seller', phone: '123-456-7891' },
     { name: 'Harry Potter', email: 'customer@hogwarts.edu', role: 'customer', phone: '123-456-7892' },
@@ -38,10 +42,12 @@ async function main() {
 
   const createdUsers = [];
   for (const user of users) {
+    const userPassword = user.password || hashedPassword;
+    const { password: _, ...userData } = user; // Remove password from user data
     const created = await prisma.user.upsert({
       where: { email: user.email },
-      update: { ...user, password: hashedPassword },
-      create: { ...user, password: hashedPassword, loyaltyPoints: user.role === 'customer' ? 150 : 0 },
+      update: { ...userData, password: userPassword },
+      create: { ...userData, password: userPassword, loyaltyPoints: user.role === 'customer' ? 150 : 0 },
     });
     createdUsers.push(created);
   }
