@@ -7,8 +7,8 @@ WORKDIR /app
 RUN apk add --no-cache openssl
 
 # Copy package files
-COPY package*.json ./
-COPY prisma ./prisma/
+COPY backend/package*.json ./
+COPY backend/prisma ./prisma/
 
 # Install dependencies
 RUN npm ci --only=production
@@ -17,7 +17,7 @@ RUN npm ci --only=production
 RUN npx prisma generate
 
 # Copy source code
-COPY src ./src
+COPY backend/src ./src
 
 # Expose port
 EXPOSE 3001
