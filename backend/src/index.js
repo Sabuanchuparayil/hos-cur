@@ -104,23 +104,21 @@ process.on('SIGTERM', async () => {
   process.exit(0);
 });
 
-// Start server with Redis initialization
-const startServer = async () => {
-  // Initialize Redis (optional - will fallback gracefully if unavailable)
-  await initRedis();
-
-  app.listen(PORT, '0.0.0.0', () => {
-    logger.info('🪄 House of Spells API started', {
-      port: PORT,
-      environment: process.env.NODE_ENV || 'development',
-      cache: process.env.REDIS_URL ? 'Enabled' : 'Disabled',
-    });
+// Start server immediately, initialize Redis in background
+app.listen(PORT, '0.0.0.0', () => {
+  logger.info('🪄 House of Spells API started', {
+    port: PORT,
+    environment: process.env.NODE_ENV || 'development',
   });
-};
-
-startServer().catch((error) => {
-  logger.error('Failed to start server', { error: error.message });
-  process.exit(1);
+  
+  // Initialize Redis in background (non-blocking)
+  initRedis().then(() => {
+    if (process.env.REDIS_URL) {
+      logger.info('Redis initialization complete');
+    }
+  }).catch((error) => {
+    logger.warn('Redis initialization failed, continuing without cache', { error: error.message });
+  });
 });
 
 module.exports = app;
