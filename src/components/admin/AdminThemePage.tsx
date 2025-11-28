@@ -30,12 +30,12 @@ export const AdminThemePage: React.FC<AdminThemePageProps> = ({ sellers, onUpdat
   
   const currentSeller = useMemo(() => {
     if (!user) return undefined;
-    return sellers.find(s => s.id === user.id);
+    return sellers.find((s: Seller) => s.id === user.id);
   }, [sellers, user]);
 
-  const savedTheme = currentSeller?.theme || { name: 'dark', customizations: {} };
+  const savedTheme = currentSeller?.theme || { name: 'dark' as Theme, customizations: {} };
 
-  const [selectedThemeName, setSelectedThemeName] = useState<Theme>(savedTheme.name);
+  const [selectedThemeName, setSelectedThemeName] = useState<Theme>(savedTheme.name || 'dark');
   const [customizedVariables, setCustomizedVariables] = useState<Record<string, string>>(
     savedTheme.customizations || {}
   );
@@ -43,7 +43,7 @@ export const AdminThemePage: React.FC<AdminThemePageProps> = ({ sellers, onUpdat
   const [saveFeedback, setSaveFeedback] = useState('');
   
   useEffect(() => {
-    if (currentSeller?.theme) {
+    if (currentSeller?.theme?.name) {
       setSelectedThemeName(currentSeller.theme.name);
       setCustomizedVariables(currentSeller.theme.customizations || {});
     }
@@ -81,7 +81,7 @@ export const AdminThemePage: React.FC<AdminThemePageProps> = ({ sellers, onUpdat
   const handleThemeSelect = (themeName: Theme) => {
     setSelectedThemeName(themeName);
     // When selecting a theme, apply saved customizations if they exist, otherwise clear customizations
-    if (currentSeller?.theme.name === themeName) {
+    if (currentSeller?.theme?.name === themeName) {
         setCustomizedVariables(currentSeller.theme.customizations || {});
     } else {
         setCustomizedVariables({});
@@ -105,7 +105,7 @@ export const AdminThemePage: React.FC<AdminThemePageProps> = ({ sellers, onUpdat
   };
 
   const isThemeUnsaved = useMemo(() => {
-      if (!currentSeller) return false;
+      if (!currentSeller || !currentSeller.theme) return false;
       const savedSellerTheme = currentSeller.theme;
 
       if (savedSellerTheme.name !== selectedThemeName) return true;
@@ -120,8 +120,8 @@ export const AdminThemePage: React.FC<AdminThemePageProps> = ({ sellers, onUpdat
       return <div>Loading seller information...</div>
   }
 
-  const activeThemeFullConfig = platformThemes.find(t => t.id === selectedThemeName) || platformThemes[0];
-  const isCurrentThemeUnlocked = currentSeller.unlockedThemes.includes(selectedThemeName);
+  const activeThemeFullConfig = platformThemes.find((t: ThemeConfiguration) => t.id === selectedThemeName) || platformThemes[0];
+  const isCurrentThemeUnlocked = (currentSeller.unlockedThemes || []).includes(selectedThemeName);
 
   return (
     <div>
@@ -149,18 +149,18 @@ export const AdminThemePage: React.FC<AdminThemePageProps> = ({ sellers, onUpdat
         <div className="lg:col-span-1">
             <h2 className="text-xl font-bold font-cinzel text-[--accent] mb-4">Theme Store</h2>
              <div className="space-y-3 max-h-[70vh] overflow-y-auto pr-2">
-                {platformThemes.filter(t => t.isAvailable).map((theme) => {
-                    const isUnlocked = currentSeller.unlockedThemes.includes(theme.id);
+                {platformThemes.filter((t: ThemeConfiguration) => t.isAvailable).map((theme: ThemeConfiguration) => {
+                    const isUnlocked = (currentSeller.unlockedThemes || []).includes(theme.id);
                     const isSelected = selectedThemeName === theme.id;
                     return (
                         <div key={theme.id} className={`p-4 rounded-lg border-2 transition-all ${isSelected ? 'bg-[--bg-tertiary] border-[--accent]' : 'bg-[--bg-secondary] border-transparent'}`}>
                              <div 
                                 className="h-32 bg-cover bg-center rounded-md mb-3"
-                                style={{ backgroundImage: `url('${theme.hero.image}')` }}
+                                style={{ backgroundImage: `url('${theme.hero?.image || ''}')` }}
                             ></div>
                             <h3 className="font-bold font-cinzel text-lg text-[--text-primary]">{theme.name}</h3>
                             <div className="flex justify-between items-center mt-2">
-                                <span className="font-bold text-green-500">{theme.price > 0 ? formatPrice(theme.price, 'GBP') : 'Free'}</span>
+                                <span className="font-bold text-green-500">{(theme.price ?? 0) > 0 ? formatPrice(theme.price ?? 0, 'GBP') : 'Free'}</span>
                                 {isUnlocked ? (
                                      <button
                                         onClick={() => handleThemeSelect(theme.id)}
@@ -184,67 +184,83 @@ export const AdminThemePage: React.FC<AdminThemePageProps> = ({ sellers, onUpdat
         {/* CUSTOMIZATION PANEL */}
         <div className="lg:col-span-2">
            <h2 className="text-xl font-bold font-cinzel text-[--accent] mb-4">Customize & Preview</h2>
-           {isCurrentThemeUnlocked ? (
-            <div className="space-y-6">
-                 {/* LIVE PREVIEW */}
-                <div className={`theme-${selectedThemeName}`}>
-                    <div className="p-4 bg-[--bg-primary] rounded-md border border-[--border-color]">
-                        <div className="bg-[--bg-secondary] rounded-lg overflow-hidden shadow-lg max-w-xs mx-auto">
-                            <div className="relative h-40" style={{backgroundImage: `url('${activeThemeFullConfig.hero.image}')`, backgroundSize: 'cover', backgroundPosition: 'center'}}></div>
-                            <div className="p-4">
-                            <h3 className="text-lg font-bold font-cinzel text-[--accent] truncate">Preview Product</h3>
-                            <p className="text-[--text-muted] text-sm mt-1 h-10">This is how your products will look to customers.</p>
-                            <div className="mt-4 flex items-center justify-between">
-                                <p className="text-xl font-bold text-[--text-primary]">$42.00</p>
-                                <button className="px-4 py-2 bg-[--accent] text-[--accent-foreground] text-sm font-bold rounded-full hover:bg-[--accent-hover] transition-all duration-300">
-                                Buy Now
-                                </button>
-                            </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                {/* COLOR PICKERS */}
-                <div className="bg-[--bg-secondary] p-6 rounded-lg shadow-lg">
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-4">
-                        {CUSTOMIZABLE_VARS.map(({id, label}) => (
-                            <div key={id}>
-                                <label htmlFor={`${id}-text`} className="block text-sm font-medium text-[--text-muted] mb-1">{label}</label>
-                                <div className="flex items-center border border-[--border-color] rounded-md focus-within:ring-2 focus-within:ring-[--accent] bg-[--bg-primary] transition-shadow">
-                                    <input
-                                        id={id}
-                                        type="color"
-                                        value={isValidHex(customizedVariables[id] || '') ? customizedVariables[id] : '#000000'}
-                                        onChange={e => handleVariableChange(id, e.target.value)}
-                                        className="bg-transparent border-none w-12 h-10 p-1 cursor-pointer"
-                                        aria-label={`Select color for ${label}`}
-                                    />
-                                    <input
-                                        id={`${id}-text`}
-                                        type="text"
-                                        value={customizedVariables[id] || ''}
-                                        onChange={e => handleVariableChange(id, e.target.value)}
-                                        className="w-full bg-transparent text-[--text-primary] border-none focus:outline-none p-2"
-                                        placeholder="e.g., #FBBF24"
-                                    />
-                                </div>
-                            </div>
-                        ))}
-                    </div>
-                    <div className="pt-6">
-                        <button onClick={handleResetToDefault} className="px-4 py-2 bg-[--bg-tertiary] text-[--text-secondary] font-semibold rounded-full hover:bg-[--border-color] transition-colors">
-                            Reset to Theme Defaults
-                        </button>
-                    </div>
-                </div>
-            </div>
-           ) : (
-                <div className="bg-[--bg-secondary] p-8 rounded-lg text-center h-full flex flex-col justify-center items-center">
-                    <h3 className="text-2xl font-cinzel text-[--text-primary]">Unlock this theme to customize it</h3>
-                    <p className="text-[--text-muted] mt-2">Select a theme you own from the Theme Store to begin customizing.</p>
-                </div>
+           
+           {/* Show warning if theme not unlocked */}
+           {!isCurrentThemeUnlocked && (
+             <div className="bg-yellow-100 border border-yellow-400 text-yellow-800 px-4 py-3 rounded mb-4">
+               <p className="font-semibold">🔒 Preview Mode</p>
+               <p className="text-sm">Unlock this theme to save and apply customizations.</p>
+             </div>
            )}
+           
+           <div className="space-y-6">
+             {/* LIVE PREVIEW - Always visible */}
+             <div className={`theme-${selectedThemeName}`}>
+               <div className="p-4 bg-[--bg-primary] rounded-md border border-[--border-color]">
+                 <div className="bg-[--bg-secondary] rounded-lg overflow-hidden shadow-lg max-w-xs mx-auto">
+                   <div 
+                     className="relative h-40" 
+                     style={{
+                       backgroundImage: `url('${activeThemeFullConfig?.hero?.image || ''}')`, 
+                       backgroundSize: 'cover', 
+                       backgroundPosition: 'center'
+                     }}
+                   ></div>
+                   <div className="p-4">
+                     <h3 className="text-lg font-bold font-cinzel text-[--accent] truncate">Preview Product</h3>
+                     <p className="text-[--text-muted] text-sm mt-1 h-10">This is how your products will look to customers.</p>
+                     <div className="mt-4 flex items-center justify-between">
+                       <p className="text-xl font-bold text-[--text-primary]">$42.00</p>
+                       <button className="px-4 py-2 bg-[--accent] text-[--accent-foreground] text-sm font-bold rounded-full hover:bg-[--accent-hover] transition-all duration-300">
+                         Buy Now
+                       </button>
+                     </div>
+                   </div>
+                 </div>
+               </div>
+             </div>
+
+             {/* COLOR PICKERS - Only show if unlocked */}
+             {isCurrentThemeUnlocked ? (
+               <div className="bg-[--bg-secondary] p-6 rounded-lg shadow-lg">
+                 <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-4">
+                   {CUSTOMIZABLE_VARS.map(({id, label}) => (
+                     <div key={id}>
+                       <label htmlFor={`${id}-text`} className="block text-sm font-medium text-[--text-muted] mb-1">{label}</label>
+                       <div className="flex items-center border border-[--border-color] rounded-md focus-within:ring-2 focus-within:ring-[--accent] bg-[--bg-primary] transition-shadow">
+                         <input
+                           id={id}
+                           type="color"
+                           value={isValidHex(customizedVariables[id] || '') ? customizedVariables[id] : '#000000'}
+                           onChange={e => handleVariableChange(id, e.target.value)}
+                           className="bg-transparent border-none w-12 h-10 p-1 cursor-pointer"
+                           aria-label={`Select color for ${label}`}
+                         />
+                         <input
+                           id={`${id}-text`}
+                           type="text"
+                           value={customizedVariables[id] || ''}
+                           onChange={e => handleVariableChange(id, e.target.value)}
+                           className="w-full bg-transparent text-[--text-primary] border-none focus:outline-none p-2"
+                           placeholder="e.g., #FBBF24"
+                         />
+                       </div>
+                     </div>
+                   ))}
+                 </div>
+                 <div className="pt-6">
+                   <button onClick={handleResetToDefault} className="px-4 py-2 bg-[--bg-tertiary] text-[--text-secondary] font-semibold rounded-full hover:bg-[--border-color] transition-colors">
+                     Reset to Theme Defaults
+                   </button>
+                 </div>
+               </div>
+             ) : (
+               <div className="bg-[--bg-secondary] p-6 rounded-lg text-center">
+                 <h3 className="text-lg font-cinzel text-[--text-primary] mb-2">Unlock to Customize</h3>
+                 <p className="text-[--text-muted] text-sm">Click "Unlock" on this theme in the Theme Store to customize colors and save changes.</p>
+               </div>
+             )}
+           </div>
         </div>
       </div>
     </div>

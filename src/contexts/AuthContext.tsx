@@ -1,6 +1,13 @@
-import React, { createContext, useState, useContext, ReactNode, useEffect } from 'react';
-import { User, UserAddress } from '../types';
-import { apiService } from '../services/apiService';
+import React, {
+  createContext,
+  useState,
+  useContext,
+  ReactNode,
+  useEffect,
+} from 'react';
+
+import { authApi, usersApi } from '../services/apiService';
+import { User } from '../types';
 
 interface AuthContextType {
   user: User | null;
@@ -10,117 +17,135 @@ interface AuthContextType {
   loginWithProvider: (provider: 'google' | 'facebook') => Promise<User>;
   register: (name: string, email: string, password: string) => Promise<void>;
   logout: () => void;
-  updateUser: (user: User) => Promise<void>; // For user's own profile
-  adminUpdateUser: (user: User) => Promise<void>; // For admin to update any user
-  deleteUser: (userId: number) => Promise<void>;
-  addUser: (user: Omit<User, 'id' | 'loyaltyPoints' | 'createdAt'>) => Promise<void>;
   fetchUsers: () => Promise<void>;
+  addUser: (user: Omit<User, 'id' | 'createdAt'>) => Promise<void>;
+  updateUser: (user: User) => Promise<void>;
+  adminUpdateUser: (user: User) => Promise<void>;
+  deleteUser: (id: number) => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
+export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
   const [users, setUsers] = useState<User[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
+  // Load logged-in user from localStorage
   useEffect(() => {
-    const checkLoggedIn = async () => {
-      const token = localStorage.getItem('authToken');
-      if (token) {
-        try {
-          // A '/me' endpoint is best practice to verify token and get user data
-          const currentUser = await apiService.fetchCurrentUser(); 
-          setUser(currentUser);
-        } catch (error) {
-          console.error("Session invalid, logging out.", error);
-          localStorage.removeItem('authToken');
-        }
-      }
-      setIsLoading(false);
-    };
-    checkLoggedIn();
+    const savedUser = localStorage.getItem('user');
+    if (savedUser) setUser(JSON.parse(savedUser));
+    setIsLoading(false);
   }, []);
 
-
-  const login = async (email: string, password: string): Promise<User> => {
-     const { user: apiUser, token } = await apiService.login(email, password);
-     localStorage.setItem('authToken', token);
-     setUser(apiUser);
-     return apiUser;
+  // Save logged-in user to localStorage
+  const saveUser = (user: User) => {
+    setUser(user);
+    localStorage.setItem('user', JSON.stringify(user));
   };
+
+  /* -----------------------------------------
+     AUTH ACTIONS
+  ------------------------------------------*/
   
-  const register = async (name: string, email: string, password: string): Promise<void> => {
-     const { user: apiUser, token } = await apiService.register(name, email, password);
-     localStorage.setItem('authToken', token);
-     setUser(apiUser);
+  const login = async (email: string, password: string) => {
+    const response = await authApi.login({ email, password });
+    // The apiService now handles token storage internally
+    saveUser(response.user);
+    return response.user;
   };
 
   const loginWithProvider = async (provider: 'google' | 'facebook'): Promise<User> => {
-     // In a real app, this would redirect to the backend's OAuth endpoint, e.g., /api/auth/google
-     // The backend handles the OAuth flow, creates/finds the user, generates a JWT,
-     // and then redirects back to the frontend with the token.
-     console.warn(`Initiating login with ${provider}... This is a placeholder for backend OAuth flow.`);
-     throw new Error("Social login is not connected to a backend implementation.");
+    // OAuth flow placeholder - redirect to backend OAuth endpoint
+    // In production, this would:
+    // 1. Redirect to /auth/google or /auth/facebook
+    // 2. Backend handles OAuth with provider
+    // 3. Backend redirects back with JWT token
+    // 4. Frontend extracts token and user from URL params
+    
+    console.warn(`Social login with ${provider} not yet implemented on backend`);
+    throw new Error(`Social login with ${provider} requires backend OAuth configuration. Please use email/password login for now.`);
+  };
+
+  const register = async (name: string, email: string, password: string) => {
+    const response = await authApi.register({ name, email, password });
+    // Update state immediately after registration
+    saveUser(response.user);
   };
 
   const logout = () => {
+    authApi.logout();
     setUser(null);
-    localStorage.removeItem('authToken');
   };
+
+  /* -----------------------------------------
+     ADMIN / USER MANAGEMENT
+  ------------------------------------------*/
 
   const fetchUsers = async () => {
-      const allUsers = await apiService.fetchUsers(); // Assuming a /api/users endpoint exists
-      setUsers(allUsers);
-  };
-  
-  const updateUser = async (updatedUser: User) => {
-    const savedUser = await apiService.updateUser(updatedUser);
-    setUser(savedUser); // Update the currently logged-in user's state
-    // If an admin is updating another user, the users list will need refreshing
-    setUsers(prev => prev.map(u => u.id === savedUser.id ? savedUser : u));
+    const userList = await usersApi.getUsers();
+    setUsers(userList);
   };
 
-  const adminUpdateUser = async (updatedUser: User) => {
-    const savedUser = await apiService.updateUser(updatedUser);
-    setUsers(prev => prev.map(u => u.id === savedUser.id ? savedUser : u));
-    if (user?.id === savedUser.id) {
-        setUser(savedUser);
+  const addUser = async (data: Omit<User, 'id' | 'createdAt'>) => {
+    await usersApi.createUser(data);
+    await fetchUsers();
+  };
+
+  const updateUser = async (updated: User) => {
+    await usersApi.updateUser(updated);
+    
+    // If updating the currently logged-in user, update the user state
+    if (user && updated.id === user.id) {
+      saveUser(updated);
     }
+    
+    await fetchUsers();
   };
 
-  const addUser = async (newUser: Omit<User, 'id' | 'loyaltyPoints' | 'createdAt'>) => {
-    // FIX: The apiService expects loyaltyPoints and createdAt. We'll add default
-    // values here before creating the user. The backend may override createdAt.
-    const fullUserPayload: Omit<User, 'id'> = {
-        ...newUser,
-        loyaltyPoints: 0,
-        createdAt: new Date().toISOString(),
-    };
-     const createdUser = await apiService.addUser(fullUserPayload);
-     setUsers(prev => [...prev, createdUser]);
-  };
-  
-  const deleteUser = async (userId: number) => {
-    await apiService.deleteUser(userId);
-    setUsers(prev => prev.filter(u => u.id !== userId));
-    if (user?.id === userId) {
-        logout();
+  const deleteUser = async (id: number) => {
+    await usersApi.deleteUser(id);
+    
+    // If deleting the currently logged-in user, log them out
+    if (user && id === user.id) {
+      logout();
+      return; // Don't fetch users after logout
     }
+    
+    await fetchUsers();
   };
 
+  // Alias for admin user updates
+  const adminUpdateUser = updateUser;
 
   return (
-    <AuthContext.Provider value={{ user, users, isLoading, login, register, loginWithProvider, logout, updateUser, adminUpdateUser, deleteUser, addUser, fetchUsers }}>
+    <AuthContext.Provider
+      value={{
+        user,
+        users,
+        isLoading,
+        login,
+        loginWithProvider,
+        register,
+        logout,
+        fetchUsers,
+        addUser,
+        updateUser,
+        adminUpdateUser,
+        deleteUser,
+      }}
+    >
       {children}
     </AuthContext.Provider>
   );
 };
 
+/* -----------------------------------------
+   HOOK
+------------------------------------------*/
 export const useAuth = () => {
-  const context = useContext(AuthContext);
-  if (context === undefined) {
-    throw new Error('useAuth must be used within an AuthProvider');
-  }
-  return context;
+  const ctx = useContext(AuthContext);
+  if (!ctx) throw new Error('useAuth must be used inside AuthProvider');
+  return ctx;
 };
+

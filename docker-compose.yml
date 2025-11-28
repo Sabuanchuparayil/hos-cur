@@ -1,0 +1,62 @@
+# Docker Compose for local development
+# Run with: docker-compose up -d
+
+version: '3.8'
+
+services:
+  # PostgreSQL Database
+  postgres:
+    image: postgres:16-alpine
+    container_name: hos-postgres
+    environment:
+      POSTGRES_USER: hos_user
+      POSTGRES_PASSWORD: hos_password
+      POSTGRES_DB: house_of_spells
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U hos_user -d house_of_spells"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  # Backend API
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: hos-backend
+    environment:
+      DATABASE_URL: postgresql://hos_user:hos_password@postgres:5432/house_of_spells?schema=public
+      JWT_SECRET: your-local-dev-secret-key
+      PORT: 3001
+      FRONTEND_URL: http://localhost:5173
+      NODE_ENV: development
+    ports:
+      - "3001:3001"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    volumes:
+      - ./backend/src:/app/src:ro
+    command: >
+      sh -c "npx prisma migrate deploy && npm run prisma:seed && npm start"
+
+  # Frontend (optional - for production-like testing)
+  # frontend:
+  #   build:
+  #     context: .
+  #     dockerfile: Dockerfile
+  #   container_name: hos-frontend
+  #   environment:
+  #     VITE_API_URL: http://localhost:3001
+  #   ports:
+  #     - "8080:8080"
+  #   depends_on:
+  #     - backend
+
+volumes:
+  postgres_data:
+

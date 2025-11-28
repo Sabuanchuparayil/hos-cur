@@ -1,10 +1,8 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, lazy, Suspense } from 'react';
 import { HashRouter as Router, Route, Routes, Outlet, Navigate, useLocation } from 'react-router-dom';
 import { Header } from './components/Header';
 import { ProductCard } from './components/ProductCard';
 import { Footer } from './components/Footer';
-import { ProductDetail } from './components/ProductDetail';
-import { CartPage } from './components/CartPage';
 import { CartProvider } from './contexts/CartContext';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 import { CurrencyProvider, useCurrency } from './contexts/CurrencyContext';
@@ -14,55 +12,72 @@ import { ThemeProvider, useTheme } from './contexts/ThemeContext';
 import { PromotionsProvider } from './contexts/PromotionsContext';
 import { FinancialsProvider } from './contexts/FinancialsContext';
 import { Product, Seller, SellerTheme, ProductWithTotalStock, AuditLogEntry, Order, PayoutRecord, ReturnRequest, Theme as ThemeType, User, ThemeConfiguration, HomePageLayoutId, Role, Transaction, OrderAuditLogEntry, IntegrationSettings, HomePageContent, ProductReview } from './types';
-import { AdminLayout } from './components/admin/AdminLayout';
-import { SellerDashboardPage } from './components/admin/SellerDashboardPage';
-import { AdminProductsPage } from './components/admin/AdminProductsPage';
-import { AdminUsersPage } from './components/admin/AdminUsersPage';
-import { AdminOrdersPage } from './components/admin/AdminOrdersPage';
-import { AdminPromotionsPage } from './components/admin/AdminPromotionsPage';
-import { AboutPage } from './components/AboutPage';
-import { ContactPage } from './components/ContactPage';
-import { FAQPage } from './components/FAQPage';
-import { PrivacyPolicyPage } from './components/PrivacyPolicyPage';
-import { TermsPage } from './components/TermsPage';
-import { LoginPage } from './components/LoginPage';
-import { RegisterPage } from './components/RegisterPage';
-import { ProfilePage } from './components/ProfilePage';
-import { CheckoutPage } from './components/CheckoutPage';
-import { OrderConfirmationPage } from './components/OrderConfirmationPage';
-import { OrderHistoryPage } from './components/OrderHistoryPage';
-import { OrderDetailPage } from './components/OrderDetailPage';
-import { SellerOnboardingPage } from './components/SellerOnboardingPage';
-import { AdminSellersPage } from './components/admin/AdminSellersPage';
-import { FinancialsDashboard } from './components/admin/FinancialsDashboard';
-import { AdminReturnsPage } from './components/admin/AdminReturnsPage';
-import { AdminRolesPage } from './components/admin/AdminRolesPage';
 import { ProductCardSkeleton } from './components/skeletons/ProductCardSkeleton';
 import { injectThemeStyles, removeAllInjectedStyles } from './services/themeStyleService';
-import { AdminPlatformThemesPage } from './components/admin/AdminPlatformThemesPage';
-import { ThemeManagementRouter } from './components/admin/ThemeManagementRouter';
 import { StandardHeroLayout } from './components/layouts/StandardHeroLayout';
 import { FeaturedProductLayout } from './components/layouts/FeaturedProductLayout';
 import { EnchantedHomepageLayout } from './components/layouts/EnchantedHomepageLayout';
-import { AdminOrderDetailPage } from './components/admin/AdminOrderDetailPage';
-import { LogisticsDashboard } from './components/admin/LogisticsDashboard';
-import { ShippingPolicyPage } from './components/ShippingPolicyPage';
-import { ReturnsPolicyPage } from './components/ReturnsPolicyPage';
-import { GeminiChat } from './components/GeminiChat';
 import { fuzzyMatch } from './services/searchService';
-import { AdminIntegrationsPage } from './components/admin/AdminIntegrationsPage';
 import { WishlistProvider } from './contexts/WishlistContext';
-import { WishlistPage } from './components/WishlistPage';
 import { RecentlyViewedProvider } from './contexts/RecentlyViewedContext';
-import { AdminContentHomePage } from './components/admin/AdminContentHomePage';
-import { SearchPage } from './components/SearchPage';
-import { SellerPayoutsPage } from './components/admin/SellerPayoutsPage';
-import { AdminBulkUploadPage } from './components/admin/AdminBulkUploadPage';
-import { PickerDashboardPage } from './components/admin/PickerDashboardPage';
-import { DeliveryCoordinatorPage } from './components/admin/DeliveryCoordinatorPage';
 import { NewsletterSignup } from './components/NewsletterSignup';
 import { ChatProvider } from './contexts/ChatContext';
-import { apiService } from './services/apiService';
+import { ordersApi, productsApi, sellersApi, usersApi, reviewsApi, platformThemesApi } from "./services/apiService";
+import { apiService } from "./services/apiService";
+
+// Lazy load heavy components for code splitting
+const ProductDetail = lazy(() => import('./components/ProductDetail'));
+const CartPage = lazy(() => import('./components/CartPage'));
+const LoginPage = lazy(() => import('./components/LoginPage'));
+const RegisterPage = lazy(() => import('./components/RegisterPage'));
+const ProfilePage = lazy(() => import('./components/ProfilePage'));
+const CheckoutPage = lazy(() => import('./components/CheckoutPage'));
+const OrderConfirmationPage = lazy(() => import('./components/OrderConfirmationPage'));
+const OrderHistoryPage = lazy(() => import('./components/OrderHistoryPage'));
+const OrderDetailPage = lazy(() => import('./components/OrderDetailPage'));
+const WishlistPage = lazy(() => import('./components/WishlistPage'));
+const SearchPage = lazy(() => import('./components/SearchPage'));
+const AboutPage = lazy(() => import('./components/AboutPage'));
+const ContactPage = lazy(() => import('./components/ContactPage'));
+const FAQPage = lazy(() => import('./components/FAQPage'));
+const PrivacyPolicyPage = lazy(() => import('./components/PrivacyPolicyPage'));
+const TermsPage = lazy(() => import('./components/TermsPage'));
+const ShippingPolicyPage = lazy(() => import('./components/ShippingPolicyPage'));
+const ReturnsPolicyPage = lazy(() => import('./components/ReturnsPolicyPage'));
+const SellerOnboardingPage = lazy(() => import('./components/SellerOnboardingPage'));
+const GeminiChat = lazy(() => import('./components/GeminiChat'));
+
+// Lazy load admin components (largest bundle)
+const AdminLayout = lazy(() => import('./components/admin/AdminLayout'));
+const SellerDashboardPage = lazy(() => import('./components/admin/SellerDashboardPage'));
+const AdminProductsPage = lazy(() => import('./components/admin/AdminProductsPage'));
+const AdminUsersPage = lazy(() => import('./components/admin/AdminUsersPage'));
+const AdminOrdersPage = lazy(() => import('./components/admin/AdminOrdersPage'));
+const AdminOrderDetailPage = lazy(() => import('./components/admin/AdminOrderDetailPage'));
+const AdminPromotionsPage = lazy(() => import('./components/admin/AdminPromotionsPage'));
+const AdminSellersPage = lazy(() => import('./components/admin/AdminSellersPage'));
+const FinancialsDashboard = lazy(() => import('./components/admin/FinancialsDashboard'));
+const AdminReturnsPage = lazy(() => import('./components/admin/AdminReturnsPage'));
+const AdminRolesPage = lazy(() => import('./components/admin/AdminRolesPage'));
+const AdminPlatformThemesPage = lazy(() => import('./components/admin/AdminPlatformThemesPage'));
+const ThemeManagementRouter = lazy(() => import('./components/admin/ThemeManagementRouter'));
+const LogisticsDashboard = lazy(() => import('./components/admin/LogisticsDashboard'));
+const AdminIntegrationsPage = lazy(() => import('./components/admin/AdminIntegrationsPage'));
+const AdminContentHomePage = lazy(() => import('./components/admin/AdminContentHomePage'));
+const SellerPayoutsPage = lazy(() => import('./components/admin/SellerPayoutsPage'));
+const AdminBulkUploadPage = lazy(() => import('./components/admin/AdminBulkUploadPage'));
+const PickerDashboardPage = lazy(() => import('./components/admin/PickerDashboardPage'));
+const DeliveryCoordinatorPage = lazy(() => import('./components/admin/DeliveryCoordinatorPage'));
+
+// Loading component for Suspense fallback
+const LoadingFallback = () => (
+  <div className="min-h-screen flex items-center justify-center bg-[--bg-primary]">
+    <div className="text-center">
+      <div className="inline-block animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-[--accent]"></div>
+      <p className="mt-4 text-[--text-muted]">Loading...</p>
+    </div>
+  </div>
+);
 
 
 const LAYOUTS: Record<HomePageLayoutId, React.ComponentType<any>> = {
@@ -225,11 +240,15 @@ const MainLayout: React.FC = () => {
     <div className="flex flex-col min-h-screen">
       <Header />
       <main className="flex-grow">
-        <Outlet />
+        <Suspense fallback={<LoadingFallback />}>
+          <Outlet />
+        </Suspense>
       </main>
       <NewsletterSignup />
       <Footer />
-      <GeminiChat />
+      <Suspense fallback={null}>
+        <GeminiChat />
+      </Suspense>
     </div>
   )
 };
@@ -309,16 +328,16 @@ const AppContent: React.FC = () => {
           contentData,
           reviewsData,
         ] = await Promise.all([
-          apiService.fetchProducts(),
-          apiService.fetchSellers(),
-          apiService.fetchOrders(),
+          productsApi.getProducts(),
+          sellersApi.getSellers(),
+          ordersApi.getOrders(),
           apiService.fetchRoles(),
           apiService.fetchReturnRequests(),
           apiService.fetchTransactions(),
-          apiService.fetchPlatformThemes(),
+          platformThemesApi.getThemes(),
           apiService.fetchIntegrationSettings(),
           apiService.fetchHomePageContent(),
-          apiService.fetchReviews(),
+          reviewsApi.getReviews(),
         ]);
 
         setProducts(productsData);
@@ -369,7 +388,7 @@ const AppContent: React.FC = () => {
         // FIX: The apiService expects a sellerId, but the productData type allows it to be optional.
         // The form validation should ensure a sellerId is present before submission,
         // so we cast the type to satisfy the API contract.
-        const newProduct = await apiService.addProduct(productData as Omit<Product, 'id'>);
+        const newProduct = await productsApi.createProduct(productData as Omit<Product, 'id'>);
         setProducts(prev => [...prev, newProduct]);
     } catch (error) {
         console.error("Failed to add product:", error);
@@ -379,7 +398,7 @@ const AppContent: React.FC = () => {
 
   const updateProduct = async (updatedProduct: Product) => {
     try {
-        const savedProduct = await apiService.updateProduct(updatedProduct);
+        const savedProduct = await productsApi.updateProduct(updatedProduct);
         setProducts(prev => prev.map(p => p.id === savedProduct.id ? savedProduct : p));
     } catch (error) {
         console.error("Failed to update product:", error);
@@ -389,7 +408,7 @@ const AppContent: React.FC = () => {
 
   const deleteProduct = async (productId: number) => {
     try {
-        await apiService.deleteProduct(productId);
+        await productsApi.deleteProduct(productId);
         setProducts(prev => prev.filter(p => p.id !== productId));
     } catch (error) {
         console.error("Failed to delete product:", error);
@@ -399,7 +418,7 @@ const AppContent: React.FC = () => {
 
   const addSeller = async (application: Omit<Seller, 'id' | 'theme' | 'status' | 'applicationDate' | 'isVerified' | 'performance' | 'auditLog' | 'financials' | 'unlockedThemes' | 'payoutsEnabled'>) => {
     try {
-        const newSeller = await apiService.addSeller(application);
+        const newSeller = await sellersApi.createSeller(application);
         setSellers(prev => [...prev, newSeller]);
     } catch (error) {
         console.error("Failed to add seller:", error);
@@ -409,7 +428,7 @@ const AppContent: React.FC = () => {
   
   const adminAddSeller = async (sellerData: Pick<Seller, 'name' | 'businessName' | 'contactEmail' | 'type' | 'status'>) => {
     try {
-        const newSeller = await apiService.addSeller(sellerData);
+        const newSeller = await sellersApi.createSeller(sellerData);
         setSellers(prev => [...prev, newSeller]);
     } catch (error) {
         console.error("Failed to add seller:", error);
@@ -419,7 +438,7 @@ const AppContent: React.FC = () => {
   
   const adminUpdateSeller = async (updatedSeller: Seller) => {
     try {
-        const savedSeller = await apiService.updateSeller(updatedSeller);
+        const savedSeller = await sellersApi.updateSeller(updatedSeller);
         setSellers(prev => prev.map(s => s.id === savedSeller.id ? savedSeller : s));
     } catch (error) {
         console.error("Failed to update seller:", error);
@@ -470,12 +489,12 @@ const AppContent: React.FC = () => {
 
   const addOrder = async (order: Order) => {
     try {
-        const newOrder = await apiService.addOrder(order);
+        const newOrder = await ordersApi.createOrder(order);
         setOrders(prev => [newOrder, ...prev]);
         // Transactions should be created on the backend when an order is created.
         // We'll fetch updated transactions to reflect the change.
         apiService.fetchTransactions().then(setTransactions);
-        apiService.fetchSellers().then(setSellers); // Refresh seller balance
+        sellersApi.getSellers().then(setSellers); // Refresh seller balance
     } catch (error) {
         console.error("Failed to add order:", error);
         alert("Error: Could not place order.");
@@ -498,7 +517,7 @@ const AppContent: React.FC = () => {
             order.status === 'Delivered'
         );
 
-        const newReview = await apiService.addReview({
+        const newReview = await reviewsApi.createReview({
             ...reviewData,
             userId: user.id,
             userName: user.name,
@@ -522,7 +541,7 @@ const AppContent: React.FC = () => {
     notes?: string
   ) => {
     try {
-        const updatedOrder = await apiService.updateOrder(orderId, { updates, notes });
+        const updatedOrder = await ordersApi.updateOrder(orderId, { updates, notes });
         setOrders(prev => prev.map(o => o.id === updatedOrder.id ? updatedOrder : o));
     } catch (error) {
         console.error("Failed to update order status:", error);
@@ -535,7 +554,7 @@ const AppContent: React.FC = () => {
         const result = await apiService.processPayout({ sellerId, currency });
         if (result.success) {
             // Refresh seller and transaction data
-            apiService.fetchSellers().then(setSellers);
+            sellersApi.getSellers().then(setSellers);
             apiService.fetchTransactions().then(setTransactions);
         }
     } catch (error) {
@@ -549,7 +568,7 @@ const AppContent: React.FC = () => {
         const newTransaction = await apiService.addTransaction(transaction);
         setTransactions(prev => [newTransaction, ...prev]);
         // Refresh seller balance
-        apiService.fetchSellers().then(setSellers);
+        sellersApi.getSellers().then(setSellers);
     } catch (error) {
         console.error("Failed to add transaction:", error);
         alert("Error: Could not add manual transaction.");
@@ -574,9 +593,9 @@ const AppContent: React.FC = () => {
         setReturnRequests(prev => prev.map(r => r.id === savedRequest.id ? savedRequest : r));
         // Refresh related orders and transactions if a refund was processed
         if (savedRequest.status.startsWith('Completed') || savedRequest.status.startsWith('Rejected')) {
-            apiService.fetchOrders().then(setOrders);
+            ordersApi.getOrders().then(setOrders);
             apiService.fetchTransactions().then(setTransactions);
-            apiService.fetchSellers().then(setSellers);
+            sellersApi.getSellers().then(setSellers);
         }
     } catch (error) {
         console.error("Failed to update return request:", error);
