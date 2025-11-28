@@ -676,11 +676,20 @@ const AppContent: React.FC = () => {
         
         <Route path="/admin/*" element={
             <ProtectedRoute allowedRoles={['admin', 'seller', 'finance_manager', 'accountant', 'order_manager', 'shipping_coordinator', 'support_agent', 'content_moderator', 'marketing_manager', 'warehouse_operative', 'logistics_coordinator', 'customer_support_lead', 'catalog_manager', 'delivery_coordinator']}>
-                <AdminLayout user={user} roles={roles}/>
+                {isLoading ? (
+                    <div className="min-h-screen flex items-center justify-center bg-[--bg-primary]">
+                        <div className="text-center">
+                            <div className="inline-block animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-[--accent]"></div>
+                            <p className="mt-4 text-[--text-muted]">Loading admin panel...</p>
+                        </div>
+                    </div>
+                ) : (
+                    <AdminLayout user={user} roles={roles || []}/>
+                )}
             </ProtectedRoute>
         }>
           <Route index element={<Navigate to="dashboard" replace />} />
-          <Route path="dashboard" element={<SellerDashboardPage user={user} products={productsWithDerivedData} orders={orders} sellers={sellers} />} />
+          <Route path="dashboard" element={<SellerDashboardPage user={user} products={productsWithDerivedData || []} orders={orders || []} sellers={sellers || []} />} />
           <Route path="products" element={
             <AdminProductsPage 
               products={productsWithDerivedData} 

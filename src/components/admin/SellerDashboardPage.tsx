@@ -218,7 +218,8 @@ export const SellerDashboardPage: React.FC<SellerDashboardPageProps> = ({ user, 
     const actionItems = useMemo(() => {
         const items = [];
          if (user?.role === 'warehouse_operative' || user?.role === 'shipping_coordinator') {
-             const newOrders = props.orders.filter(o => o.status === 'Awaiting Shipment');
+             const safeOrders = Array.isArray(props.orders) ? props.orders : [];
+             const newOrders = safeOrders.filter(o => o?.status === 'Awaiting Shipment');
              if (newOrders.length > 0) {
                  items.push({ icon: '📦', text: <>{newOrders.length} new order{newOrders.length > 1 ? 's' : ''} to fulfill</>, link: '/admin/picking-dashboard'});
              }
