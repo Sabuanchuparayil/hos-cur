@@ -48,8 +48,14 @@ const SellerOnboardingPage = lazy(() => import('./components/SellerOnboardingPag
 const GeminiChat = lazy(() => import('./components/GeminiChat'));
 
 // Lazy load admin components (largest bundle)
-const AdminLayout = lazy(() => import('./components/admin/AdminLayout'));
-const SellerDashboardPage = lazy(() => import('./components/admin/SellerDashboardPage'));
+// FIX: Handle named exports for lazy loading to prevent React error #306
+// React.lazy() requires default exports, so we need to wrap named exports
+const AdminLayout = lazy(() => 
+  import('./components/admin/AdminLayout').then(module => ({ default: module.AdminLayout }))
+);
+const SellerDashboardPage = lazy(() => 
+  import('./components/admin/SellerDashboardPage').then(module => ({ default: module.SellerDashboardPage }))
+);
 const AdminProductsPage = lazy(() => import('./components/admin/AdminProductsPage'));
 const AdminUsersPage = lazy(() => import('./components/admin/AdminUsersPage'));
 const AdminOrdersPage = lazy(() => import('./components/admin/AdminOrdersPage'));

@@ -24,9 +24,12 @@ export const FinancialsProvider: React.FC<{ children: ReactNode }> = ({ children
     const fetchRates = async () => {
       try {
         const rates = await apiService.fetchTaxRates();
-        setTaxRates(rates);
+        if (rates && typeof rates === 'object') {
+          setTaxRates(rates);
+        }
       } catch (error) {
         console.error("Failed to fetch tax rates, using initial values.", error);
+        // Keep using INITIAL_TAX_RATES which are already set in useState
       }
     };
     fetchRates();
