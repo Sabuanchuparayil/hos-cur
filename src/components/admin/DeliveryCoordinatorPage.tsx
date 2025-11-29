@@ -17,9 +17,11 @@ const AnalyticsCard: React.FC<{ title: string; value: number; color: string }> =
 export const DeliveryCoordinatorPage: React.FC<DeliveryCoordinatorPageProps> = ({ orders, onUpdateStatus }) => {
     
     const relevantOrders = useMemo(() => {
-        const inTransit = orders.filter(o => o.status === 'Shipped');
-        const exceptions = orders.filter(o => o.status === 'Delivery Exception');
-        const awaitingPickup = orders.filter(o => o.status === 'Awaiting Pickup');
+        // FIX: Ensure orders is an array before calling filter
+        const safeOrders = Array.isArray(orders) ? orders : [];
+        const inTransit = safeOrders.filter(o => o?.status === 'Shipped');
+        const exceptions = safeOrders.filter(o => o?.status === 'Delivery Exception');
+        const awaitingPickup = safeOrders.filter(o => o?.status === 'Awaiting Pickup');
         return { inTransit, exceptions, awaitingPickup };
     }, [orders]);
 

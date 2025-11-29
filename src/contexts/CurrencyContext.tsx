@@ -30,6 +30,10 @@ export const CurrencyProvider: React.FC<{ children: ReactNode }> = ({ children }
   const [currency, setCurrency] = useState<string>('GBP');
 
   const formatPrice = (price: number, currencyCode: string) => {
+    // FIX: Handle null/undefined price values
+    if (price == null || isNaN(price)) {
+      price = 0;
+    }
     const selectedCurrency = currencies[currencyCode];
     if (!selectedCurrency) {
         // Fallback for safety

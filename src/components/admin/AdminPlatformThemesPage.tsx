@@ -51,7 +51,7 @@ export const AdminPlatformThemesPage: React.FC<AdminPlatformThemesPageProps> = (
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 md:hidden">
         {themes.map(theme => (
             <div key={theme.id} className="bg-[--bg-secondary] rounded-lg shadow-lg">
-                <div className="w-full h-32 bg-cover bg-center rounded-t-lg" style={{backgroundImage: `url(${theme.hero.image})`}}></div>
+                <div className="w-full h-32 bg-cover bg-center rounded-t-lg" style={{backgroundImage: `url(${theme?.hero?.image || ''})`}}></div>
                 <div className="p-4 space-y-3">
                     <h3 className="font-bold text-[--text-primary] font-cinzel text-lg truncate">{theme.name}</h3>
                     <p className="text-sm text-[--text-muted] font-mono">{theme.id}</p>
@@ -98,7 +98,7 @@ export const AdminPlatformThemesPage: React.FC<AdminPlatformThemesPageProps> = (
             {themes.map(theme => (
               <tr key={theme.id} className="border-b border-[--border-color] hover:bg-[--bg-tertiary]">
                 <td className="p-4">
-                  <div className="w-24 h-16 bg-cover bg-center rounded" style={{backgroundImage: `url(${theme.hero.image})`}}></div>
+                  <div className="w-24 h-16 bg-cover bg-center rounded" style={{backgroundImage: `url(${theme?.hero?.image || ''})`}}></div>
                 </td>
                 <td className="p-4 font-bold text-[--text-primary]">{theme.name}</td>
                 <td className="p-4 text-[--text-muted] font-mono">{theme.id}</td>

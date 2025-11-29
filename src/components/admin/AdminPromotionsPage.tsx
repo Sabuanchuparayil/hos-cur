@@ -9,6 +9,9 @@ export const AdminPromotionsPage: React.FC = () => {
     const { currency, formatPrice } = useCurrency();
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [editingPromotion, setEditingPromotion] = useState<Promotion | undefined>(undefined);
+    
+    // FIX: Ensure promotions is always an array
+    const safePromotions = Array.isArray(promotions) ? promotions : [];
 
     const handleOpenModalForAdd = () => {
         setEditingPromotion(undefined);
@@ -27,9 +30,11 @@ export const AdminPromotionsPage: React.FC = () => {
 
     const getPromotionValue = (p: Promotion) => {
         if (p.type === 'PERCENTAGE' || p.type === 'PRODUCT_SPECIFIC_PERCENTAGE') {
-            return `${p.value}%`;
+            return `${p.value || 0}%`;
         }
         if (p.type === 'FREE_SHIPPING') return 'Free Shipping';
+        // FIX: Check if value is null/undefined before calling formatPrice
+        if (p.value == null) return formatPrice(0, currency);
         return formatPrice(p.value, currency); // Assuming fixed amount is in base currency for now
     };
 
@@ -59,7 +64,7 @@ export const AdminPromotionsPage: React.FC = () => {
 
             {/* Mobile Card View */}
             <div className="block md:hidden space-y-4">
-                {promotions.length > 0 ? promotions.map(p => (
+                {safePromotions.length > 0 ? safePromotions.map(p => (
                     <div key={p.id} className="bg-[--bg-secondary] rounded-lg shadow-lg p-4 space-y-3">
                         <div className="flex justify-between items-start">
                             <p className="font-mono font-bold text-[--accent] text-lg">{p.code}</p>
@@ -109,7 +114,7 @@ export const AdminPromotionsPage: React.FC = () => {
                         </tr>
                     </thead>
                     <tbody>
-                        {promotions.length > 0 ? promotions.map(p => (
+                        {safePromotions.length > 0 ? safePromotions.map(p => (
                             <tr key={p.id} className="border-b border-[--border-color] hover:bg-[--bg-tertiary]">
                                 <td className="p-4 font-mono font-bold text-[--accent]">{p.code}</td>
                                 <td className="p-4 text-[--text-muted] max-w-xs truncate">{p.description}</td>

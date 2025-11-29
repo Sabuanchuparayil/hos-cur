@@ -10,7 +10,8 @@ interface IntegrationCardProps {
 }
 
 export const IntegrationCard: React.FC<IntegrationCardProps> = ({ integrationConfig, credentials, onSave }) => {
-  const [formData, setFormData] = useState<IntegrationCredentials>(credentials);
+  // FIX: Provide default empty object if credentials is undefined
+  const [formData, setFormData] = useState<IntegrationCredentials>(credentials || {});
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
