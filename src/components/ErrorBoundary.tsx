@@ -33,6 +33,15 @@ class ErrorBoundary extends Component<Props, State> {
   componentDidCatch(error: Error, errorInfo: ErrorInfo) {
     console.error('ErrorBoundary caught an error:', error, errorInfo);
     
+    // Log detailed error in production for debugging
+    if (process.env.NODE_ENV === 'production') {
+      console.error("Production Error Details:", {
+        message: error.message,
+        stack: error.stack,
+        componentStack: errorInfo.componentStack
+      });
+    }
+    
     // You can also log the error to an error reporting service here
     // e.g., Sentry.captureException(error);
   }
@@ -62,11 +71,17 @@ class ErrorBoundary extends Component<Props, State> {
                 We encountered an unexpected error. Don't worry, your data is safe.
               </p>
               
-              {process.env.NODE_ENV === 'development' && this.state.error && (
+              {/* Show error message in production too (for debugging) */}
+              {this.state.error && (
                 <div className="mb-6 p-4 bg-red-900/20 border border-red-500/50 rounded text-left">
-                  <p className="text-sm font-mono text-red-400 break-all">
-                    {this.state.error.message}
+                  <p className="text-sm font-mono text-red-400 break-all mb-2">
+                    <strong>Error:</strong> {this.state.error.message}
                   </p>
+                  {process.env.NODE_ENV === 'development' && this.state.error.stack && (
+                    <pre className="text-xs text-red-300 overflow-auto max-h-40 mt-2">
+                      {this.state.error.stack}
+                    </pre>
+                  )}
                 </div>
               )}
 

@@ -319,16 +319,46 @@ const AppContent: React.FC = () => {
         // Use Promise.allSettled to handle partial failures gracefully
         // Some endpoints require auth and will fail for anonymous users
         const results = await Promise.allSettled([
-          productsApi.getProducts(),
-          sellersApi.getSellers(),
-          ordersApi.getOrders(),
-          apiService.fetchRoles(),
-          apiService.fetchReturnRequests(),
-          apiService.fetchTransactions(),
-          platformThemesApi.getThemes(),
-          apiService.fetchIntegrationSettings(),
-          apiService.fetchHomePageContent(),
-          reviewsApi.getReviews(),
+          productsApi.getProducts().catch(err => {
+            console.error("Failed to fetch products:", err);
+            return [];
+          }),
+          sellersApi.getSellers().catch(err => {
+            console.error("Failed to fetch sellers:", err);
+            return [];
+          }),
+          ordersApi.getOrders().catch(err => {
+            console.error("Failed to fetch orders:", err);
+            return [];
+          }),
+          apiService.fetchRoles().catch(err => {
+            console.error("Failed to fetch roles:", err);
+            return [];
+          }),
+          apiService.fetchReturnRequests().catch(err => {
+            console.error("Failed to fetch return requests:", err);
+            return [];
+          }),
+          apiService.fetchTransactions().catch(err => {
+            console.error("Failed to fetch transactions:", err);
+            return [];
+          }),
+          platformThemesApi.getThemes().catch(err => {
+            console.error("Failed to fetch themes:", err);
+            return [];
+          }),
+          apiService.fetchIntegrationSettings().catch(err => {
+            console.error("Failed to fetch integration settings:", err);
+            return null;
+          }),
+          apiService.fetchHomePageContent().catch(err => {
+            console.error("Failed to fetch homepage content:", err);
+            return null;
+          }),
+          reviewsApi.getReviews().catch(err => {
+            console.error("Failed to fetch reviews:", err);
+            return [];
+          }),
         ]);
 
         // Extract values, using fallback for failed requests OR null responses
@@ -348,6 +378,17 @@ const AppContent: React.FC = () => {
 
       } catch (error) {
         console.error("Failed to fetch initial data:", error);
+        // Set safe defaults to prevent crashes
+        setProducts([]);
+        setSellers([]);
+        setOrders([]);
+        setRoles([]);
+        setReturnRequests([]);
+        setTransactions([]);
+        setPlatformThemes([]);
+        setIntegrationSettings(null);
+        setHomePageContent(null);
+        setReviews([]);
       } finally {
         setIsLoading(false);
       }
@@ -359,22 +400,44 @@ const AppContent: React.FC = () => {
   const productsWithDerivedData = useMemo(() => {
     if (!products || !Array.isArray(products)) return [];
     return products.map(product => {
+      try {
         const productReviews = reviews.filter(r => r.productId === product.id);
         const reviewCount = productReviews.length;
         const averageRating = reviewCount > 0
-            ? productReviews.reduce((sum, r) => sum + r.rating, 0) / reviewCount
-            : 0;
+          ? productReviews.reduce((sum, r) => sum + r.rating, 0) / reviewCount
+          : 0;
         
-        const stock = product.hasVariations && product.variations
-            ? product.variations.reduce((total, v) => total + v.inventory.reduce((sum, loc) => sum + loc.stock, 0), 0)
-            : product.inventory.reduce((sum, loc) => sum + loc.stock, 0);
+        // FIX: Add null safety checks for inventory to prevent crashes
+        let stock = 0;
+        if (product.hasVariations && product.variations && Array.isArray(product.variations)) {
+          stock = product.variations.reduce((total, v) => {
+            if (!v || !v.inventory || !Array.isArray(v.inventory)) return total;
+            return total + v.inventory.reduce((sum, loc) => {
+              return sum + (loc?.stock || 0);
+            }, 0);
+          }, 0);
+        } else if (product.inventory && Array.isArray(product.inventory)) {
+          stock = product.inventory.reduce((sum, loc) => {
+            return sum + (loc?.stock || 0);
+          }, 0);
+        }
 
         return {
-            ...product,
-            stock,
-            averageRating,
-            reviewCount,
+          ...product,
+          stock,
+          averageRating,
+          reviewCount,
         };
+      } catch (error) {
+        console.error("Error processing product:", product.id, error);
+        // Return product with safe defaults to prevent crashes
+        return {
+          ...product,
+          stock: 0,
+          averageRating: 0,
+          reviewCount: 0,
+        };
+      }
     });
   }, [products, reviews]);
 

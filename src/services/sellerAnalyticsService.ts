@@ -56,12 +56,13 @@ export const generateSellerAnalytics = (sellerId: number, allProducts: ProductWi
     
     const topSellingProducts = Object.entries(productSales)
         .map(([productId, unitsSold]) => {
-            const product = sellerProducts.find(p => p.id === Number(productId));
+            const product = sellerProducts.find(p => p?.id === Number(productId));
+            if (!product) return null;
             return { ...product, unitsSold };
         })
-        .filter(p => p.id) // Filter out any potential mismatches
-        .sort((a, b) => b.unitsSold - a.unitsSold)
-        .slice(0, 5) as (ProductWithTotalStock & { unitsSold: number })[];
+        .filter((p): p is ProductWithTotalStock & { unitsSold: number } => p !== null && p.id !== undefined) // Filter out nulls
+        .sort((a, b) => (b.unitsSold || 0) - (a.unitsSold || 0))
+        .slice(0, 5);
 
     // Mock sales data for the chart
     const salesByDay = [

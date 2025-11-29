@@ -33,12 +33,22 @@ const SellerDashboard: React.FC<SellerDashboardPageProps> = ({ products, orders,
 
     const sellerAnalytics = useMemo(() => {
         if (!currentSeller) return null;
-        return generateSellerAnalytics(currentSeller.id, products, orders);
+        try {
+            return generateSellerAnalytics(currentSeller.id, products || [], orders || []);
+        } catch (error) {
+            console.error("Error generating seller analytics:", error);
+            return null;
+        }
     }, [currentSeller, products, orders]);
 
     const biInsights = useMemo(() => {
         if (!sellerAnalytics) return [];
-        return generateBIInsights(sellerAnalytics, currency);
+        try {
+            return generateBIInsights(sellerAnalytics, currency);
+        } catch (error) {
+            console.error("Error generating BI insights:", error);
+            return [];
+        }
     }, [sellerAnalytics, currency]);
 
     const sellerActionItems = useMemo(() => {
@@ -77,8 +87,31 @@ const SellerDashboard: React.FC<SellerDashboardPageProps> = ({ products, orders,
         return items;
     }, [currentSeller, orders, products]);
 
+    // Add better error/loading states
+    if (!user) {
+        return (
+            <div className="text-center p-8">
+                <p className="text-[--text-muted]">Please log in to view the dashboard.</p>
+            </div>
+        );
+    }
+
+    if (user.role === 'seller' && !currentSeller) {
+        return (
+            <div className="text-center p-8">
+                <p className="text-[--text-muted] mb-4">Seller profile not found.</p>
+                <p className="text-sm text-[--text-muted]">Please contact support if this issue persists.</p>
+            </div>
+        );
+    }
+
     if (!currentSeller || !sellerAnalytics) {
-        return <div>Loading seller data...</div>;
+        return (
+            <div className="text-center p-8">
+                <div className="inline-block animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-[--accent]"></div>
+                <p className="mt-4 text-[--text-muted]">Loading seller data...</p>
+            </div>
+        );
     }
 
     const safeProducts = Array.isArray(products) ? products : [];
