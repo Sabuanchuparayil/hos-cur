@@ -20,16 +20,8 @@ const NavGroup: React.FC<{
     const location = useLocation();
     const isActive = paths.some(path => location.pathname.startsWith(path));
 
-    // Auto-open section when navigating to a page within it
-    // Only auto-opens on navigation, doesn't interfere with manual toggling
-    useEffect(() => {
-        if (isActive && !isOpen) {
-            // Use a ref check to ensure we only auto-open on actual navigation
-            // This prevents interference with manual toggle clicks
-            onToggle();
-        }
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [isActive]); // Only depend on isActive (path change), not isOpen or onToggle to prevent loops
+    // Note: Auto-opening based on path is handled in the parent component's useEffect
+    // This component only handles manual toggling via button clicks
     
     return (
         <div className="relative">
