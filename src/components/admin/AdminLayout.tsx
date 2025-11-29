@@ -57,6 +57,7 @@ const NavGroup: React.FC<{
 export const AdminLayout: React.FC<AdminLayoutProps> = ({ roles, user }) => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [openSection, setOpenSection] = useState<string | null>(null);
+  const [manuallyToggled, setManuallyToggled] = useState(false); // Track if user manually toggled a section
   const location = useLocation();
   const navigate = useNavigate();
   const { logout } = useAuth();
@@ -82,8 +83,11 @@ export const AdminLayout: React.FC<AdminLayoutProps> = ({ roles, user }) => {
     navigate('/');
   };
 
-  // Auto-open section based on current path
+  // Auto-open section based on current path (only on navigation, not on manual toggles)
   useEffect(() => {
+    // Only auto-open if user hasn't manually toggled a section
+    if (manuallyToggled) return;
+    
     const path = location.pathname;
     if (path.startsWith('/admin/products') || path.startsWith('/admin/bulk-upload') || path.startsWith('/admin/promotions')) {
       setOpenSection('storefront');
@@ -96,10 +100,16 @@ export const AdminLayout: React.FC<AdminLayoutProps> = ({ roles, user }) => {
     } else if (path.startsWith('/admin/dashboard')) {
         setOpenSection(null); // No section for dashboard
     }
+  }, [location.pathname, manuallyToggled]);
+  
+  // Reset manual toggle flag when path actually changes (user navigates)
+  useEffect(() => {
+    setManuallyToggled(false);
   }, [location.pathname]);
 
   const toggleSection = (section: string) => {
     // FIX: Accordion behavior - clicking the same section closes it, clicking a different section closes current and opens new one
+    setManuallyToggled(true); // Mark that user manually toggled
     setOpenSection(prev => {
       // If clicking the same section that's already open, close it
       if (prev === section) {
