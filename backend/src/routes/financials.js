@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const { authenticateToken } = require('../middleware/auth');
+const { authenticate, authorize } = require('../middleware/auth');
 const { logger } = require('../utils/logger');
 
 // Default tax rates (can be stored in database later)
@@ -20,12 +20,8 @@ let taxRates = { ...DEFAULT_TAX_RATES };
  * GET /financials/tax-rates
  * Get current tax rates
  */
-router.get('/tax-rates', authenticateToken, (req, res) => {
+router.get('/tax-rates', authenticate, authorize(['admin', 'finance_manager', 'accountant']), (req, res) => {
   try {
-    // Check if user has permission (admin or finance manager)
-    if (req.user.role !== 'admin' && req.user.role !== 'finance_manager' && req.user.role !== 'accountant') {
-      return res.status(403).json({ error: 'Forbidden: Insufficient permissions' });
-    }
 
     res.json(taxRates);
   } catch (error) {
@@ -38,12 +34,8 @@ router.get('/tax-rates', authenticateToken, (req, res) => {
  * PUT /financials/tax-rates
  * Update tax rates
  */
-router.put('/tax-rates', authenticateToken, (req, res) => {
+router.put('/tax-rates', authenticate, authorize(['admin', 'finance_manager', 'accountant']), (req, res) => {
   try {
-    // Check if user has permission (admin or finance manager)
-    if (req.user.role !== 'admin' && req.user.role !== 'finance_manager' && req.user.role !== 'accountant') {
-      return res.status(403).json({ error: 'Forbidden: Insufficient permissions' });
-    }
 
     const { rates } = req.body;
 
