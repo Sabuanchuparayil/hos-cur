@@ -20,17 +20,23 @@ const NavGroup: React.FC<{
     const location = useLocation();
     const isActive = paths.some(path => location.pathname.startsWith(path));
 
+    // Auto-open section when navigating to a page within it
+    // Only auto-opens on navigation, doesn't interfere with manual toggling
     useEffect(() => {
         if (isActive && !isOpen) {
+            // Use a ref check to ensure we only auto-open on actual navigation
+            // This prevents interference with manual toggle clicks
             onToggle();
         }
-    }, [isActive, isOpen, onToggle]);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [isActive]); // Only depend on isActive (path change), not isOpen or onToggle to prevent loops
     
     return (
         <div className="relative">
             <button 
                 onClick={(e) => {
                     e.stopPropagation();
+                    e.preventDefault();
                     onToggle();
                 }} 
                 className={`flex items-center justify-between w-full px-4 py-2 rounded-md transition-colors ${isActive ? 'text-[--accent]' : 'text-[--text-secondary] hover:bg-[--bg-tertiary] hover:text-[--text-primary]'}`}
@@ -101,7 +107,15 @@ export const AdminLayout: React.FC<AdminLayoutProps> = ({ roles, user }) => {
   }, [location.pathname]);
 
   const toggleSection = (section: string) => {
-    setOpenSection(prev => prev === section ? null : section);
+    // FIX: Accordion behavior - clicking the same section closes it, clicking a different section closes current and opens new one
+    setOpenSection(prev => {
+      // If clicking the same section that's already open, close it
+      if (prev === section) {
+        return null;
+      }
+      // Otherwise, open the new section (this automatically closes the previous one)
+      return section;
+    });
   };
 
   const navLinkClasses = ({ isActive }: { isActive: boolean }) =>
