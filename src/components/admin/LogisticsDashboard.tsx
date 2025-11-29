@@ -100,8 +100,15 @@ export const LogisticsDashboard: React.FC<LogisticsDashboardProps> = ({ orders, 
         }
     };
     
-    const ordersToShip = useMemo(() => orders.filter(o => o.status === 'Awaiting Shipment' || o.status === 'Partially Shipped'), [orders]);
-    const returnsInTransit = useMemo(() => returnRequests.filter(r => r.status === 'In Transit' || r.status === 'Approved - Awaiting Return'), [returnRequests]);
+    // FIX: Ensure orders and returnRequests are arrays before calling filter
+    const ordersToShip = useMemo(() => {
+        const safeOrders = Array.isArray(orders) ? orders : [];
+        return safeOrders.filter(o => o?.status === 'Awaiting Shipment' || o?.status === 'Partially Shipped');
+    }, [orders]);
+    const returnsInTransit = useMemo(() => {
+        const safeReturns = Array.isArray(returnRequests) ? returnRequests : [];
+        return safeReturns.filter(r => r?.status === 'In Transit' || r?.status === 'Approved - Awaiting Return');
+    }, [returnRequests]);
 
     const renderContent = () => {
         switch (activeTab) {

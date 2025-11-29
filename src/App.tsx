@@ -297,8 +297,20 @@ const MainLayout: React.FC = () => {
 };
 
 const ProtectedRoute: React.FC<{ children: React.ReactNode, allowedRoles?: User['role'][] }> = ({ children, allowedRoles }) => {
-  const { user } = useAuth();
+  const { user, isLoading } = useAuth();
   const location = useLocation();
+
+  // FIX: Wait for auth to finish loading before redirecting
+  if (isLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-[--bg-primary]">
+        <div className="text-center">
+          <div className="inline-block animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-[--accent]"></div>
+          <p className="mt-4 text-[--text-muted]">Loading...</p>
+        </div>
+      </div>
+    );
+  }
 
   if (!user) {
     return <Navigate to="/login" state={{ from: location }} replace />;

@@ -27,9 +27,12 @@ const NavGroup: React.FC<{
     }, [isActive, isOpen, onToggle]);
     
     return (
-        <div>
+        <div className="relative">
             <button 
-                onClick={onToggle} 
+                onClick={(e) => {
+                    e.stopPropagation();
+                    onToggle();
+                }} 
                 className={`flex items-center justify-between w-full px-4 py-2 rounded-md transition-colors ${isActive ? 'text-[--accent]' : 'text-[--text-secondary] hover:bg-[--bg-tertiary] hover:text-[--text-primary]'}`}
             >
                 <div className="flex items-center gap-3">
@@ -40,7 +43,10 @@ const NavGroup: React.FC<{
                     <path fillRule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clipRule="evenodd" />
                 </svg>
             </button>
-            <div className={`transition-[max-height] duration-300 ease-in-out overflow-hidden ${isOpen ? 'max-h-screen' : 'max-h-0'}`}>
+            <div 
+                className={`transition-[max-height] duration-300 ease-in-out overflow-hidden ${isOpen ? 'max-h-screen' : 'max-h-0'}`}
+                onClick={(e) => e.stopPropagation()}
+            >
                 <div className="pl-6 pt-2 space-y-1">
                     {children}
                 </div>

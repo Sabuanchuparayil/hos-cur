@@ -12,7 +12,9 @@ export const PickerDashboardPage: React.FC<PickerDashboardPageProps> = ({ orders
     const { t } = useLanguage();
 
     const ordersToPick = useMemo(() => {
-        return orders.filter(o => o.status === 'Awaiting Shipment');
+        // FIX: Ensure orders is an array before calling filter
+        const safeOrders = Array.isArray(orders) ? orders : [];
+        return safeOrders.filter(o => o?.status === 'Awaiting Shipment');
     }, [orders]);
 
     return (

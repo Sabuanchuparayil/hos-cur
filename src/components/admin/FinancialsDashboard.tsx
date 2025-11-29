@@ -80,8 +80,11 @@ export const FinancialsDashboard: React.FC<FinancialsDashboardProps> = ({ seller
   };
 
   const filteredOrders = useMemo(() => {
-    if (!dateRange.start && !dateRange.end) return orders;
-    return orders.filter(o => {
+    // FIX: Ensure orders is an array before calling filter
+    const safeOrders = Array.isArray(orders) ? orders : [];
+    if (!dateRange.start && !dateRange.end) return safeOrders;
+    return safeOrders.filter(o => {
+        if (!o) return false;
         const orderDate = new Date(o.date);
         const start = dateRange.start ? new Date(dateRange.start) : null;
         const end = dateRange.end ? new Date(dateRange.end) : null;
@@ -92,13 +95,20 @@ export const FinancialsDashboard: React.FC<FinancialsDashboardProps> = ({ seller
   }, [orders, dateRange]);
 
   const financialSummary = useMemo(() => {
-    const totalPlatformRevenue = filteredOrders.reduce((acc, order) => acc + order.platformFee.base, 0);
-    const totalSalesValue = filteredOrders.reduce((acc, order) => acc + order.subtotal, 0);
-    const totalTaxesCollected = filteredOrders.reduce((acc, order) => acc + order.taxes, 0);
-    const totalRefunds = transactions.filter(t => t.type === 'Refund').reduce((acc, tx) => acc + Math.abs(tx.amount), 0);
+    // FIX: Ensure all arrays are safe before calling reduce
+    const safeFilteredOrders = Array.isArray(filteredOrders) ? filteredOrders : [];
+    const safeTransactions = Array.isArray(transactions) ? transactions : [];
+    const safeSellers = Array.isArray(sellers) ? sellers : [];
     
-    const outstandingBalance = sellers.flatMap(s => Object.entries(s.financials.balance))
-      .reduce((acc, [, amount]) => acc + (amount as number), 0);
+    const totalPlatformRevenue = safeFilteredOrders.reduce((acc, order) => acc + (order?.platformFee?.base || 0), 0);
+    const totalSalesValue = safeFilteredOrders.reduce((acc, order) => acc + (order?.subtotal || 0), 0);
+    const totalTaxesCollected = safeFilteredOrders.reduce((acc, order) => acc + (order?.taxes || 0), 0);
+    const totalRefunds = safeTransactions.filter(t => t?.type === 'Refund').reduce((acc, tx) => acc + Math.abs(tx?.amount || 0), 0);
+    
+    const outstandingBalance = safeSellers.flatMap(s => {
+        if (!s?.financials?.balance) return [];
+        return Object.entries(s.financials.balance);
+    }).reduce((acc, [, amount]) => acc + (amount as number || 0), 0);
 
     return { totalPlatformRevenue, outstandingBalance, totalSalesValue, totalTaxesCollected, totalRefunds };
   }, [filteredOrders, sellers, transactions]);
@@ -458,9 +468,12 @@ export const FinancialsDashboard: React.FC<FinancialsDashboardProps> = ({ seller
         }
     };
 
-    const taxesCollectedByCountry = filteredOrders.reduce((acc, order) => {
+    // FIX: Ensure filteredOrders is an array before calling reduce
+    const safeFilteredOrdersForTaxes = Array.isArray(filteredOrders) ? filteredOrders : [];
+    const taxesCollectedByCountry = safeFilteredOrdersForTaxes.reduce((acc, order) => {
+        if (!order?.shippingAddress?.country) return acc;
         const country = order.shippingAddress.country;
-        acc[country] = (acc[country] || 0) + order.taxes;
+        acc[country] = (acc[country] || 0) + (order?.taxes || 0);
         return acc;
     }, {} as {[key: string]: number});
     

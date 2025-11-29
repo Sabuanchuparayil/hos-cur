@@ -59,7 +59,7 @@ const ProductPickerModal: React.FC<{
                                 onChange={() => handleToggle(product.id)}
                                 className="h-5 w-5 rounded border-gray-500 text-[--accent] focus:ring-[--accent]"
                             />
-                            <img src={product.media[0]?.url} alt={product.name.en} className="w-10 h-10 object-cover rounded"/>
+                            <img src={product?.media?.[0]?.url || ''} alt={product?.name?.en || ''} className="w-10 h-10 object-cover rounded"/>
                             <span className="font-semibold text-sm">{product.name.en}</span>
                         </label>
                     ))}
