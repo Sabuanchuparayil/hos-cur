@@ -27,5 +27,10 @@ export const ThemeManagementRouter: React.FC<ThemeManagementRouterProps> = (prop
     }
 
     // Fallback for any unexpected cases
-    return <div>Loading...</div>;
+    return (
+        <div className="text-center p-8">
+            <p className="text-[--text-muted] mb-4">Access denied.</p>
+            <p className="text-sm text-[--text-muted]">This page is only available for sellers and administrators.</p>
+        </div>
+    );
 };

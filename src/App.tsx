@@ -56,24 +56,61 @@ const AdminLayout = lazy(() =>
 const SellerDashboardPage = lazy(() => 
   import('./components/admin/SellerDashboardPage').then(module => ({ default: module.SellerDashboardPage }))
 );
-const AdminProductsPage = lazy(() => import('./components/admin/AdminProductsPage'));
-const AdminUsersPage = lazy(() => import('./components/admin/AdminUsersPage'));
-const AdminOrdersPage = lazy(() => import('./components/admin/AdminOrdersPage'));
-const AdminOrderDetailPage = lazy(() => import('./components/admin/AdminOrderDetailPage'));
-const AdminPromotionsPage = lazy(() => import('./components/admin/AdminPromotionsPage'));
-const AdminSellersPage = lazy(() => import('./components/admin/AdminSellersPage'));
-const FinancialsDashboard = lazy(() => import('./components/admin/FinancialsDashboard'));
-const AdminReturnsPage = lazy(() => import('./components/admin/AdminReturnsPage'));
-const AdminRolesPage = lazy(() => import('./components/admin/AdminRolesPage'));
-const AdminPlatformThemesPage = lazy(() => import('./components/admin/AdminPlatformThemesPage'));
-const ThemeManagementRouter = lazy(() => import('./components/admin/ThemeManagementRouter'));
-const LogisticsDashboard = lazy(() => import('./components/admin/LogisticsDashboard'));
-const AdminIntegrationsPage = lazy(() => import('./components/admin/AdminIntegrationsPage'));
-const AdminContentHomePage = lazy(() => import('./components/admin/AdminContentHomePage'));
-const SellerPayoutsPage = lazy(() => import('./components/admin/SellerPayoutsPage'));
-const AdminBulkUploadPage = lazy(() => import('./components/admin/AdminBulkUploadPage'));
-const PickerDashboardPage = lazy(() => import('./components/admin/PickerDashboardPage'));
-const DeliveryCoordinatorPage = lazy(() => import('./components/admin/DeliveryCoordinatorPage'));
+// FIX: Handle named exports for lazy loading to prevent React error #306
+const AdminProductsPage = lazy(() => 
+  import('./components/admin/AdminProductsPage').then(module => ({ default: module.AdminProductsPage }))
+);
+const AdminUsersPage = lazy(() => 
+  import('./components/admin/AdminUsersPage').then(module => ({ default: module.AdminUsersPage }))
+);
+const AdminOrdersPage = lazy(() => 
+  import('./components/admin/AdminOrdersPage').then(module => ({ default: module.AdminOrdersPage }))
+);
+const AdminOrderDetailPage = lazy(() => 
+  import('./components/admin/AdminOrderDetailPage').then(module => ({ default: module.AdminOrderDetailPage }))
+);
+const AdminPromotionsPage = lazy(() => 
+  import('./components/admin/AdminPromotionsPage').then(module => ({ default: module.AdminPromotionsPage }))
+);
+const AdminSellersPage = lazy(() => 
+  import('./components/admin/AdminSellersPage').then(module => ({ default: module.AdminSellersPage }))
+);
+const FinancialsDashboard = lazy(() => 
+  import('./components/admin/FinancialsDashboard').then(module => ({ default: module.FinancialsDashboard }))
+);
+const AdminReturnsPage = lazy(() => 
+  import('./components/admin/AdminReturnsPage').then(module => ({ default: module.AdminReturnsPage }))
+);
+const AdminRolesPage = lazy(() => 
+  import('./components/admin/AdminRolesPage').then(module => ({ default: module.AdminRolesPage }))
+);
+const AdminPlatformThemesPage = lazy(() => 
+  import('./components/admin/AdminPlatformThemesPage').then(module => ({ default: module.AdminPlatformThemesPage }))
+);
+const ThemeManagementRouter = lazy(() => 
+  import('./components/admin/ThemeManagementRouter').then(module => ({ default: module.ThemeManagementRouter }))
+);
+const LogisticsDashboard = lazy(() => 
+  import('./components/admin/LogisticsDashboard').then(module => ({ default: module.LogisticsDashboard }))
+);
+const AdminIntegrationsPage = lazy(() => 
+  import('./components/admin/AdminIntegrationsPage').then(module => ({ default: module.AdminIntegrationsPage }))
+);
+const AdminContentHomePage = lazy(() => 
+  import('./components/admin/AdminContentHomePage').then(module => ({ default: module.AdminContentHomePage }))
+);
+const SellerPayoutsPage = lazy(() => 
+  import('./components/admin/SellerPayoutsPage').then(module => ({ default: module.SellerPayoutsPage }))
+);
+const AdminBulkUploadPage = lazy(() => 
+  import('./components/admin/AdminBulkUploadPage').then(module => ({ default: module.AdminBulkUploadPage }))
+);
+const PickerDashboardPage = lazy(() => 
+  import('./components/admin/PickerDashboardPage').then(module => ({ default: module.PickerDashboardPage }))
+);
+const DeliveryCoordinatorPage = lazy(() => 
+  import('./components/admin/DeliveryCoordinatorPage').then(module => ({ default: module.DeliveryCoordinatorPage }))
+);
 
 // Loading component for Suspense fallback
 const LoadingFallback = () => (
