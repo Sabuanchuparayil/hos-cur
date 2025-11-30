@@ -17,6 +17,7 @@ import { injectThemeStyles, removeAllInjectedStyles } from './services/themeStyl
 import { StandardHeroLayout } from './components/layouts/StandardHeroLayout';
 import { FeaturedProductLayout } from './components/layouts/FeaturedProductLayout';
 import { EnchantedHomepageLayout } from './components/layouts/EnchantedHomepageLayout';
+import { OldSiteHomepageLayout } from './components/layouts/OldSiteHomepageLayout';
 import { fuzzyMatch } from './services/searchService';
 import { WishlistProvider } from './contexts/WishlistContext';
 import { RecentlyViewedProvider } from './contexts/RecentlyViewedContext';
@@ -122,9 +123,8 @@ const LoadingFallback = () => (
   </div>
 );
 
-
 const LAYOUTS: Record<HomePageLayoutId, React.ComponentType<any>> = {
-    standard: StandardHeroLayout,
+    standard: OldSiteHomepageLayout, // Use OLD SITE layout as default
     featured: FeaturedProductLayout,
     enchanted: EnchantedHomepageLayout,
 };
@@ -233,7 +233,7 @@ const HomePage: React.FC<{ products: ProductWithTotalStock[], isLoading: boolean
     return (
         <LayoutComponent 
             products={paginatedProducts}
-            allProducts={products}
+            allProducts={filteredAndSortedProducts}
             isLoading={isLoading}
             homePageContent={homePageContent}
             allOrders={allOrders}

@@ -14,9 +14,29 @@ export const Hero: React.FC<ThemeHero> = ({ image, title, subtitle }) => {
 
     return (
         <div 
-            className="relative h-[60vh] flex items-center justify-center text-center"
+            className="relative h-[60vh] flex items-center justify-center text-center overflow-hidden"
             style={{ backgroundColor: '#2d2d2d' }}
         >
+            {/* Purple gradient overlay/curve */}
+            <div 
+                className="absolute inset-0 opacity-30"
+                style={{
+                    background: 'linear-gradient(135deg, var(--accent, #6633ff) 0%, transparent 70%)',
+                }}
+            />
+            {/* Purple curve at bottom */}
+            <svg 
+                className="absolute bottom-0 left-0 w-full h-24"
+                viewBox="0 0 1200 100"
+                preserveAspectRatio="none"
+                style={{ zIndex: 1 }}
+            >
+                <path 
+                    d="M0,100 Q300,0 600,50 T1200,50 L1200,100 Z"
+                    fill="var(--accent, #6633ff)"
+                    opacity="0.2"
+                />
+            </svg>
             <div className="relative z-10 px-4">
                 <h1 className="text-5xl md:text-7xl font-normal text-white">
                     {t(title) || 'House of Spells'}

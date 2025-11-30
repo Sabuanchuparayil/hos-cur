@@ -71,7 +71,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
 
 
   return (
-    <Link to={`/product/${product.id}`} className="bg-[--bg-secondary] rounded-lg overflow-hidden shadow-lg hover:shadow-2xl hover:shadow-[--accent]/20 transform hover:-translate-y-2 transition-all duration-300 group flex flex-col h-full border-2 border-transparent hover:border-[--accent]/50">
+    <Link to={`/product/${product.id}`} className="bg-[--bg-secondary] rounded-lg overflow-hidden shadow-md hover:shadow-xl transition-all duration-300 group flex flex-col h-full border border-gray-200 hover:border-[--accent]/30">
       <div className="relative overflow-hidden h-56 bg-[--bg-tertiary]">
         <img 
             src={primaryImage} 
@@ -83,18 +83,18 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
         <div className="absolute top-2 right-2 z-10">
             <WishlistButton productId={product.id} />
         </div>
-        <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:opacity-40 transition-opacity duration-300"></div>
+        <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:opacity-30 transition-opacity duration-300"></div>
       </div>
-      <div className="p-4 flex flex-col flex-grow">
-        <h3 className="text-lg font-bold font-cinzel text-[--accent] truncate">{t(product.name)}</h3>
+      <div className="p-5 flex flex-col flex-grow">
+        <h3 className="text-lg font-bold uppercase tracking-wide text-[--accent] truncate mb-2">{t(product.name)}</h3>
         {product.reviewCount > 0 && (
-            <div className="flex items-center gap-2 mt-1">
+            <div className="flex items-center gap-2 mb-2">
                 <StarRating rating={product.averageRating} />
                 <span className="text-xs text-[--text-muted]">({product.reviewCount})</span>
             </div>
         )}
-        <p className="text-[--text-muted] text-sm mt-1 flex-grow line-clamp-2">{t(product.description)}</p>
-        <div className="mt-4 flex items-center justify-between">
+        <p className="text-[--text-muted] text-sm mb-4 flex-grow line-clamp-2">{t(product.description)}</p>
+        <div className="mt-auto flex items-center justify-between">
           <p className="text-xl font-bold text-[--text-primary]">{getDisplayPrice(priceToDisplay)}</p>
           <ActionButton />
         </div>

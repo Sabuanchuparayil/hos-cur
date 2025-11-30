@@ -40,7 +40,7 @@ export const FeaturedFandoms: React.FC<FeaturedFandomsProps> = ({ onSelectFandom
 
     return (
         <section>
-            <h2 className="text-3xl font-bold font-cinzel text-center text-[--accent] mb-8">The Grand Hall of Fandoms</h2>
+            <h2 className="text-4xl font-bold font-cinzel text-center text-[--accent] mb-8 tracking-wide uppercase">THE GRAND HALL OF FANDOMS</h2>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
                 {featuredFandoms.map(name => {
                     const { colors } = fandomData[name] || defaultFandomData;

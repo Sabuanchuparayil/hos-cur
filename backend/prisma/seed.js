@@ -116,12 +116,13 @@ async function main() {
   }
   console.log('✅ Sellers created');
 
-  // Create products
+  // Create products - OLD SITE products from screenshots
   const products = [
+    // Existing products
     {
       name: { en: "The Elder Wand (Collector's Edition)", es: "La Varita de Saúco (Edición Coleccionista)" },
-      description: { en: "An authentic hand-painted replica of the Elder Wand, as seen in the Harry Potter films.", es: "Una réplica auténtica pintada a mano de la Varita de Saúco." },
-      pricing: { GBP: 39.99, USD: 49.99, EUR: 45.99, JPY: 7000 },
+      description: { en: "An authentic hand-painted replica of the Elder Wand, as seen in the Harry Potter films. A meticulous recreation of the most powerful wand ever created.", es: "Una réplica auténtica pintada a mano de la Varita de Saúco." },
+      pricing: { GBP: 34.99, USD: 44.99, EUR: 39.99, JPY: 6500 },
       rrp: { GBP: 45.00, USD: 55.00, EUR: 50.00, JPY: 7500 },
       tradePrice: { GBP: 25.00, USD: 30.00, EUR: 28.00, JPY: 4500 },
       fandom: 'Harry Potter',
@@ -132,29 +133,9 @@ async function main() {
       fulfillmentModel: 'HoS Warehouse',
     },
     {
-      name: { en: 'Golden Snitch Replica', es: 'Réplica de la Snitch Dorada' },
-      description: { en: 'A detailed, non-flying replica of the Golden Snitch.', es: 'Una réplica detallada y no voladora de la Snitch Dorada.' },
-      pricing: { GBP: 24.99, USD: 29.99, EUR: 27.99, JPY: 4500 },
-      fandom: 'Harry Potter',
-      subCategory: 'Collectibles',
-      sku: 'COLL-HP-SNITCH-01',
-      sellerId: createdSellers[0]?.id || 1,
-      fulfillmentModel: 'HoS Warehouse',
-    },
-    {
-      name: { en: 'Hand of the King Pin', es: 'Pin de la Mano del Rey' },
-      description: { en: 'A metal pin replica of the badge worn by the Hand of the King.', es: 'Una réplica de metal de la insignia que lleva la Mano del Rey.' },
-      pricing: { GBP: 12.99, USD: 15.99, EUR: 14.99, JPY: 2200 },
-      fandom: 'Game of Thrones',
-      subCategory: 'Jewelry',
-      sku: 'JEWEL-GOT-HOTK-PIN',
-      sellerId: createdSellers[1]?.id || 2,
-      fulfillmentModel: 'Seller Direct',
-    },
-    {
       name: { en: 'Gryffindor Scarf', es: 'Bufanda de Gryffindor' },
-      description: { en: 'A high-quality, deluxe scarf in the colors of Gryffindor house.', es: 'Una bufanda de lujo de alta calidad con los colores de la casa Gryffindor.' },
-      pricing: { GBP: 29.95, USD: 34.95, EUR: 32.95, JPY: 5000 },
+      description: { en: 'A high-quality, lambswool scarf in the iconic Gryffindor house colors of red and gold. Perfect for showing your house pride.', es: 'Una bufanda de lujo de alta calidad con los colores de la casa Gryffindor.' },
+      pricing: { GBP: 24.99, USD: 29.99, EUR: 27.99, JPY: 4500 },
       fandom: 'Harry Potter',
       subCategory: 'Apparel',
       sku: 'APRL-HP-GRYF-SCRF',
@@ -162,14 +143,100 @@ async function main() {
       sellerId: createdSellers[0]?.id || 1,
       fulfillmentModel: 'HoS Warehouse',
     },
+    // NEW products from OLD SITE screenshots
+    {
+      name: { en: "Gandalf's Staff", es: "Bastón de Gandalf" },
+      description: { en: "A full-size, illuminated replica of Gandalf the White's staff. A powerful and authentic artifact for any collector.", es: "Una réplica de tamaño completo e iluminada del bastón de Gandalf el Blanco." },
+      pricing: { GBP: 89.99, USD: 109.99, EUR: 99.99, JPY: 15000 },
+      rrp: { GBP: 120.00, USD: 145.00, EUR: 130.00, JPY: 20000 },
+      fandom: 'Lord of the Rings',
+      subCategory: 'Weapon Replicas',
+      sku: 'WEP-LOTR-GANDALF-STAFF',
+      barcode: '5055588636801',
+      sellerId: createdSellers[0]?.id || 1,
+      fulfillmentModel: 'HoS Warehouse',
+    },
+    {
+      name: { en: 'Sting Sword Replica', es: 'Réplica de la Espada Sting' },
+      description: { en: "An authentic replica of Bilbo and Frodo Baggins's elven blade, Sting. The blade glows when orcs are near (effect included).", es: "Una réplica auténtica de la hoja élfica Sting de Bilbo y Frodo Bolsón." },
+      pricing: { GBP: 79.99, USD: 99.99, EUR: 89.99, JPY: 13000 },
+      rrp: { GBP: 95.00, USD: 120.00, EUR: 110.00, JPY: 16000 },
+      fandom: 'Lord of the Rings',
+      subCategory: 'Weapon Replicas',
+      sku: 'WEP-LOTR-STING-01',
+      barcode: '5055588636802',
+      sellerId: createdSellers[0]?.id || 1,
+      fulfillmentModel: 'HoS Warehouse',
+    },
+    {
+      name: { en: 'The One Ring Replica', es: 'Réplica del Anillo Único' },
+      description: { en: 'A gold-plated tungsten replica of The One Ring, inscribed with the Black Speech of Mordor. The perfect collectible for any LOTR fan.', es: 'Una réplica de tungsteno chapado en oro del Anillo Único, inscrito con el Lenguaje Negro de Mordor.' },
+      pricing: { GBP: 49.99, USD: 59.99, EUR: 54.99, JPY: 8000 },
+      rrp: { GBP: 65.00, USD: 75.00, EUR: 70.00, JPY: 10000 },
+      fandom: 'Lord of the Rings',
+      subCategory: 'Jewelry',
+      sku: 'JEWEL-LOTR-ONERING-01',
+      barcode: '5055588636803',
+      sellerId: createdSellers[0]?.id || 1,
+      fulfillmentModel: 'HoS Warehouse',
+    },
+    {
+      name: { en: 'Funko Pop! Harry Potter', es: 'Funko Pop! Harry Potter' },
+      description: { en: 'The classic Harry Potter Funko Pop! vinyl figure, featuring his iconic round glasses and scar. A must-have for any collector.', es: 'La figura clásica de vinilo Funko Pop! de Harry Potter, con sus icónicas gafas redondas y cicatriz.' },
+      pricing: { GBP: 12.99, USD: 15.99, EUR: 14.99, JPY: 2200 },
+      fandom: 'Harry Potter',
+      subCategory: 'Toys',
+      sku: 'TOY-HP-FUNKO-HP-01',
+      barcode: '5055588636804',
+      sellerId: createdSellers[0]?.id || 1,
+      fulfillmentModel: 'HoS Warehouse',
+    },
+    {
+      name: { en: "Marauder's Map Replica", es: "Réplica del Mapa del Merodeador" },
+      description: { en: "A full-size, foldable parchment replica of the famed Marauder's Map. Reveal all the secrets of Hogwarts with this authentic collectible.", es: "Una réplica de pergamino plegable de tamaño completo del famoso Mapa del Merodeador." },
+      pricing: { GBP: 34.99, USD: 42.99, EUR: 39.99, JPY: 6000 },
+      rrp: { GBP: 45.00, USD: 55.00, EUR: 50.00, JPY: 7500 },
+      fandom: 'Harry Potter',
+      subCategory: 'Collectibles',
+      sku: 'COLL-HP-MARAUDER-MAP',
+      barcode: '5055588636805',
+      sellerId: createdSellers[0]?.id || 1,
+      fulfillmentModel: 'HoS Warehouse',
+    },
+    {
+      name: { en: 'Slytherin Locket', es: 'Medallón de Slytherin' },
+      description: { en: "A detailed replica of Salazar Slytherin's locket, a Horcrux of Lord Voldemort. Features green crystal detailing and authentic design.", es: "Una réplica detallada del medallón de Salazar Slytherin, un Horrocrux de Lord Voldemort." },
+      pricing: { GBP: 49.99, USD: 59.99, EUR: 54.99, JPY: 8000 },
+      rrp: { GBP: 65.00, USD: 75.00, EUR: 70.00, JPY: 10000 },
+      fandom: 'Harry Potter',
+      subCategory: 'Jewelry',
+      sku: 'JEWEL-HP-SLYTH-LOCKET',
+      barcode: '5055588636806',
+      sellerId: createdSellers[0]?.id || 1,
+      fulfillmentModel: 'HoS Warehouse',
+    },
+    {
+      name: { en: 'Time Turner Necklace', es: 'Collar del Giratiempo' },
+      description: { en: "A functional, spinning replica of Hermione Granger's Time Turner. Plated in 24 karat gold, it makes for a magical collectible.", es: "Una réplica funcional y giratoria del Giratiempo de Hermione Granger." },
+      pricing: { GBP: 45.00, USD: 54.99, EUR: 49.99, JPY: 7500 },
+      rrp: { GBP: 60.00, USD: 70.00, EUR: 65.00, JPY: 9500 },
+      fandom: 'Harry Potter',
+      subCategory: 'Jewelry',
+      sku: 'JEWEL-HP-TIMETURNER-01',
+      barcode: '5055588636807',
+      sellerId: createdSellers[0]?.id || 1,
+      fulfillmentModel: 'HoS Warehouse',
+    },
   ];
 
+  const createdProducts = [];
   for (const product of products) {
     const created = await prisma.product.upsert({
       where: { sku: product.sku },
       update: product,
       create: product,
     });
+    createdProducts.push(created);
 
     // Add media
     await prisma.productMedia.upsert({
@@ -195,6 +262,46 @@ async function main() {
     });
   }
   console.log('✅ Products created');
+
+  // Create reviews for products (to show ratings in OLD SITE)
+  const harryUser = createdUsers.find(u => u.email === 'customer@hogwarts.edu');
+  if (harryUser && createdProducts.length > 0) {
+    const reviews = [
+      { productSku: 'WAND-HP-ELDR-01-CE', rating: 5, comment: 'Amazing quality! Looks exactly like the movie prop.' },
+      { productSku: 'APRL-HP-GRYF-SCRF', rating: 4, comment: 'Great scarf, very warm and comfortable.' },
+      { productSku: 'JEWEL-LOTR-ONERING-01', rating: 5, comment: 'Perfect replica! The inscription is beautifully detailed.' },
+      { productSku: 'COLL-HP-MARAUDER-MAP', rating: 5, comment: 'Incredible detail! A must-have for any Potterhead.' },
+      { productSku: 'WEP-LOTR-STING-01', rating: 5, comment: 'Beautiful sword replica, the glow effect is amazing!' },
+      { productSku: 'WEP-LOTR-GANDALF-STAFF', rating: 5, comment: 'Stunning staff replica, perfect for display.' },
+    ];
+
+    for (const review of reviews) {
+      const product = createdProducts.find(p => p.sku === review.productSku);
+      if (product) {
+        // Check if review already exists
+        const existingReview = await prisma.review.findFirst({
+          where: {
+            productId: product.id,
+            userId: harryUser.id,
+          },
+        });
+
+        if (!existingReview) {
+          await prisma.review.create({
+            data: {
+              productId: product.id,
+              userId: harryUser.id,
+              userName: harryUser.name,
+              rating: review.rating,
+              comment: review.comment,
+              isVerifiedPurchase: true,
+            },
+          });
+        }
+      }
+    }
+    console.log('✅ Reviews created');
+  }
 
   // Create carriers
   const carriers = [
