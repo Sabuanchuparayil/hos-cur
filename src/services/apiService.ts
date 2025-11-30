@@ -156,8 +156,13 @@ export const ordersApi = {
 ------------------------------------------*/
 export const productsApi = {
   getProducts: async (): Promise<Product[]> => {
-    const response = await api.get("/products");
-    return response.data;
+    const response = await api.get("/products?limit=1000"); // Get all products (up to 1000)
+    // Handle paginated response: { data: [...], pagination: {...} }
+    if (response.data && Array.isArray(response.data.data)) {
+      return response.data.data;
+    }
+    // Fallback for non-paginated response
+    return Array.isArray(response.data) ? response.data : [];
   },
   
   getProduct: async (id: number): Promise<Product> => {

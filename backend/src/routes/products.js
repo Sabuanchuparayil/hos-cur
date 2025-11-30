@@ -11,6 +11,13 @@ const formatProduct = (product) => {
     ? product.variations.reduce((total, v) => total + v.inventory.reduce((sum, loc) => sum + loc.stock, 0), 0)
     : product.inventory.reduce((sum, loc) => sum + loc.stock, 0);
 
+  // Calculate average rating and review count
+  const reviews = product.reviews || [];
+  const reviewCount = reviews.length;
+  const averageRating = reviewCount > 0
+    ? reviews.reduce((sum, r) => sum + r.rating, 0) / reviewCount
+    : 0;
+
   return {
     id: product.id,
     name: product.name,
@@ -45,6 +52,8 @@ const formatProduct = (product) => {
     })),
     fulfillmentModel: product.fulfillmentModel,
     stock: totalStock,
+    averageRating: Math.round(averageRating * 10) / 10, // Round to 1 decimal
+    reviewCount: reviewCount,
   };
 };
 
@@ -69,6 +78,7 @@ router.get('/',
       const total = await req.prisma.product.count({ where });
 
       // Fetch products with optimized query (select only needed fields)
+      // Include reviews for average rating calculation
       const products = await req.prisma.product.findMany({
         where,
         include: {
@@ -81,6 +91,17 @@ router.get('/',
               name: true,
               optionValues: true,
               inventory: { select: { centreId: true, name: true, stock: true } },
+            },
+          },
+          reviews: {
+            select: {
+              id: true,
+              rating: true,
+              userId: true,
+              userName: true,
+              comment: true,
+              date: true,
+              isVerifiedPurchase: true,
             },
           },
         },
