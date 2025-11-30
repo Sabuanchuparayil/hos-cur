@@ -6,6 +6,15 @@ const { logger } = require('../utils/logger');
 
 const router = express.Router();
 
+// GET /admin/verify-token - Verify if current token is valid (for debugging)
+router.get('/verify-token', authenticate, (req, res) => {
+  res.json({
+    success: true,
+    user: req.user,
+    message: 'Token is valid',
+  });
+});
+
 // POST /admin/seed - Seed the database (Admin only)
 router.post('/seed', authenticate, authorize(['admin']), async (req, res) => {
   try {
