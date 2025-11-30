@@ -145,6 +145,17 @@ router.get('/:id', optionalAuth, async (req, res) => {
           include: { inventory: true },
         },
         seller: true,
+        reviews: {
+          select: {
+            id: true,
+            rating: true,
+            userId: true,
+            userName: true,
+            comment: true,
+            date: true,
+            isVerifiedPurchase: true,
+          },
+        },
       },
     });
 
