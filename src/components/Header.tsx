@@ -69,7 +69,7 @@ export const Header: React.FC = () => {
       <nav className="container mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-20 gap-4">
           <div className="flex items-center">
-            <Link to="/" className="text-2xl font-normal text-[--text-primary]">
+            <Link to="/" className="text-2xl font-bold font-cinzel text-[--accent]">
               House of Spells
             </Link>
           </div>
