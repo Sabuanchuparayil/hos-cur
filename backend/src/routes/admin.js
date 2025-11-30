@@ -266,6 +266,7 @@ router.post('/seed', authenticate, authorize(['admin']), async (req, res) => {
     logger.info('✅ Products created');
 
     // Create reviews for products (to show ratings in OLD SITE)
+    let reviewsCreated = 0;
     if (harryUser && createdProducts.length > 0) {
       const reviews = [
         { productSku: 'WAND-HP-ELDR-01-CE', rating: 5, comment: 'Amazing quality! Looks exactly like the movie prop.' },
@@ -297,10 +298,11 @@ router.post('/seed', authenticate, authorize(['admin']), async (req, res) => {
                 isVerifiedPurchase: true,
               },
             });
+            reviewsCreated++;
           }
         }
       }
-      logger.info('✅ Reviews created');
+      logger.info(`✅ Reviews created: ${reviewsCreated}`);
     }
 
     // Create carriers
@@ -423,7 +425,7 @@ router.post('/seed', authenticate, authorize(['admin']), async (req, res) => {
         users: createdUsers.length,
         sellers: createdSellers.length,
         products: createdProducts.length,
-        reviews: harryUser ? reviews.length : 0,
+        reviews: reviewsCreated,
         carriers: carriers.length,
         themes: 2,
         promotions: 2,
