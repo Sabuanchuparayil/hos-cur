@@ -28,65 +28,66 @@ import { apiService } from "./services/apiService";
 
 // Lazy load heavy components for code splitting
 // FIX: Handle named exports for lazy loading to prevent React error #306
+// React.lazy() requires default exports, so we wrap named exports
 const ProductDetail = lazy(() => 
   import('./components/ProductDetail').then(module => ({ default: module.ProductDetail }))
 );
 const CartPage = lazy(() => 
-  import('./components/CartPage').then(module => ({ default: module.CartPage || module.default }))
+  import('./components/CartPage').then(module => ({ default: module.CartPage }))
 );
 const LoginPage = lazy(() => 
-  import('./components/LoginPage').then(module => ({ default: module.LoginPage || module.default }))
+  import('./components/LoginPage').then(module => ({ default: module.default }))
 );
 const RegisterPage = lazy(() => 
-  import('./components/RegisterPage').then(module => ({ default: module.RegisterPage || module.default }))
+  import('./components/RegisterPage').then(module => ({ default: module.default }))
 );
 const ProfilePage = lazy(() => 
-  import('./components/ProfilePage').then(module => ({ default: module.ProfilePage || module.default }))
+  import('./components/ProfilePage').then(module => ({ default: module.ProfilePage }))
 );
 const CheckoutPage = lazy(() => 
-  import('./components/CheckoutPage').then(module => ({ default: module.CheckoutPage || module.default }))
+  import('./components/CheckoutPage').then(module => ({ default: module.CheckoutPage }))
 );
 const OrderConfirmationPage = lazy(() => 
-  import('./components/OrderConfirmationPage').then(module => ({ default: module.OrderConfirmationPage || module.default }))
+  import('./components/OrderConfirmationPage').then(module => ({ default: module.OrderConfirmationPage }))
 );
 const OrderHistoryPage = lazy(() => 
-  import('./components/OrderHistoryPage').then(module => ({ default: module.OrderHistoryPage || module.default }))
+  import('./components/OrderHistoryPage').then(module => ({ default: module.OrderHistoryPage }))
 );
 const OrderDetailPage = lazy(() => 
-  import('./components/OrderDetailPage').then(module => ({ default: module.OrderDetailPage || module.default }))
+  import('./components/OrderDetailPage').then(module => ({ default: module.OrderDetailPage }))
 );
 const WishlistPage = lazy(() => 
-  import('./components/WishlistPage').then(module => ({ default: module.WishlistPage || module.default }))
+  import('./components/WishlistPage').then(module => ({ default: module.WishlistPage }))
 );
 const SearchPage = lazy(() => 
-  import('./components/SearchPage').then(module => ({ default: module.SearchPage || module.default }))
+  import('./components/SearchPage').then(module => ({ default: module.SearchPage }))
 );
 const AboutPage = lazy(() => 
-  import('./components/AboutPage').then(module => ({ default: module.AboutPage || module.default }))
+  import('./components/AboutPage').then(module => ({ default: module.AboutPage }))
 );
 const ContactPage = lazy(() => 
-  import('./components/ContactPage').then(module => ({ default: module.ContactPage || module.default }))
+  import('./components/ContactPage').then(module => ({ default: module.ContactPage }))
 );
 const FAQPage = lazy(() => 
-  import('./components/FAQPage').then(module => ({ default: module.FAQPage || module.default }))
+  import('./components/FAQPage').then(module => ({ default: module.FAQPage }))
 );
 const PrivacyPolicyPage = lazy(() => 
-  import('./components/PrivacyPolicyPage').then(module => ({ default: module.PrivacyPolicyPage || module.default }))
+  import('./components/PrivacyPolicyPage').then(module => ({ default: module.PrivacyPolicyPage }))
 );
 const TermsPage = lazy(() => 
-  import('./components/TermsPage').then(module => ({ default: module.TermsPage || module.default }))
+  import('./components/TermsPage').then(module => ({ default: module.TermsPage }))
 );
 const ShippingPolicyPage = lazy(() => 
-  import('./components/ShippingPolicyPage').then(module => ({ default: module.ShippingPolicyPage || module.default }))
+  import('./components/ShippingPolicyPage').then(module => ({ default: module.ShippingPolicyPage }))
 );
 const ReturnsPolicyPage = lazy(() => 
-  import('./components/ReturnsPolicyPage').then(module => ({ default: module.ReturnsPolicyPage || module.default }))
+  import('./components/ReturnsPolicyPage').then(module => ({ default: module.ReturnsPolicyPage }))
 );
 const SellerOnboardingPage = lazy(() => 
-  import('./components/SellerOnboardingPage').then(module => ({ default: module.SellerOnboardingPage || module.default }))
+  import('./components/SellerOnboardingPage').then(module => ({ default: module.SellerOnboardingPage }))
 );
 const GeminiChat = lazy(() => 
-  import('./components/GeminiChat').then(module => ({ default: module.GeminiChat || module.default }))
+  import('./components/GeminiChat').then(module => ({ default: module.default }))
 );
 
 // Lazy load admin components (largest bundle)
