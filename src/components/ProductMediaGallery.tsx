@@ -22,7 +22,17 @@ export const ProductMediaGallery: React.FC<ProductMediaGalleryProps> = ({ produc
         }
         switch (selectedMedia.type) {
             case 'image':
-                return <img src={selectedMedia.url} alt={t(product.name)} className="w-full h-full object-cover" />;
+                return (
+                  <img 
+                    src={selectedMedia.url} 
+                    alt={t(product.name)} 
+                    className="w-full h-full object-cover"
+                    onError={(e) => {
+                      // Fallback to placeholder if image fails to load
+                      e.currentTarget.src = `https://via.placeholder.com/800x800/1a1a2e/e94560?text=${encodeURIComponent(t(product.name).substring(0, 30))}`;
+                    }}
+                  />
+                );
             case 'video':
                 return <video src={selectedMedia.url} className="w-full h-full object-cover" controls autoPlay muted loop />;
             case 'image_360':

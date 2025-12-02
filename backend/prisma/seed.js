@@ -238,14 +238,46 @@ async function main() {
     });
     createdProducts.push(created);
 
-    // Add media
+    // Add media with proper placeholder images
+    const getProductImageUrl = (product) => {
+      const { fandom, subCategory, name } = product;
+      const nameEn = typeof name === 'object' ? name.en : name || '';
+      
+      // Create a unique identifier for consistent images
+      const imageId = `${fandom}-${subCategory}-${nameEn}`.replace(/[^a-zA-Z0-9-]/g, '-').toLowerCase();
+      
+      // Use placeholder.com with themed colors based on fandom
+      const fandomColors = {
+        'Harry Potter': { bg: '4a0202', text: 'ffffff' },
+        'Lord of the Rings': { bg: '1a1a1a', text: 'd4af37' },
+        'Game of Thrones': { bg: '2c1810', text: 'c9a961' },
+        'Star Wars': { bg: '000000', text: 'ffd700' },
+        'Marvel Cinematic Universe': { bg: '1a1a2e', text: 'e94560' },
+        'Fantastic Beasts': { bg: '2d1b1b', text: 'd4a574' },
+        'DC Universe': { bg: '0a0a0a', text: '0066cc' },
+        'Doctor Who': { bg: '003d6b', text: 'ffffff' },
+        'Studio Ghibli': { bg: '8b9dc3', text: 'ffffff' },
+      };
+      
+      const colors = fandomColors[fandom] || { bg: '1a1a2e', text: 'e94560' };
+      
+      // Create a short label for the image
+      const label = nameEn.length > 30 ? nameEn.substring(0, 30) + '...' : nameEn;
+      const encodedLabel = encodeURIComponent(label);
+      
+      // Use placeholder.com with custom text and colors
+      return `https://via.placeholder.com/800x800/${colors.bg}/${colors.text}?text=${encodedLabel}`;
+    };
+    
+    const imageUrl = getProductImageUrl(product);
+    
     await prisma.productMedia.upsert({
       where: { id: created.id },
-      update: {},
+      update: { url: imageUrl },
       create: {
         productId: created.id,
         type: 'image',
-        url: `https://images.unsplash.com/photo-${1593344484962 + created.id}-796d9221915c?q=80&w=800`,
+        url: imageUrl,
       },
     });
 

@@ -73,13 +73,23 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
   return (
     <Link to={`/product/${product.id}`} className="bg-[--bg-secondary] rounded-lg overflow-hidden shadow-md hover:shadow-xl transition-all duration-300 group flex flex-col h-full border border-gray-200 hover:border-[--accent]/30">
       <div className="relative overflow-hidden h-56 bg-[--bg-tertiary]">
-        <img 
+        {primaryImage ? (
+          <img 
             src={primaryImage} 
             alt={t(product.name)} 
             className="w-full h-full object-cover transform group-hover:scale-110 transition-all duration-500"
             loading="lazy"
             decoding="async"
-        />
+            onError={(e) => {
+              // Fallback to placeholder if image fails to load
+              e.currentTarget.src = `https://via.placeholder.com/400x400/1a1a2e/e94560?text=${encodeURIComponent(t(product.name).substring(0, 20))}`;
+            }}
+          />
+        ) : (
+          <div className="w-full h-full flex items-center justify-center bg-[--bg-tertiary]">
+            <span className="text-[--text-muted] text-sm">No Image</span>
+          </div>
+        )}
         <div className="absolute top-2 right-2 z-10">
             <WishlistButton productId={product.id} />
         </div>
