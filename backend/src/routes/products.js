@@ -25,7 +25,9 @@ const formatProduct = (product) => {
     pricing: product.pricing,
     rrp: product.rrp,
     tradePrice: product.tradePrice,
-    media: product.media.map(m => ({ type: m.type, url: m.url })),
+    media: product.media && product.media.length > 0 
+      ? product.media.map(m => ({ type: m.type, url: m.url }))
+      : [], // Ensure media is always an array, even if empty
     taxonomy: {
       fandom: product.fandom,
       subCategory: product.subCategory,
