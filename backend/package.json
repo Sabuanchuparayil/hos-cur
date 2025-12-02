@@ -12,7 +12,8 @@
     "prisma:migrate:deploy": "prisma migrate deploy",
     "prisma:seed": "node prisma/seed.js",
     "db:setup": "npm run prisma:migrate:deploy && npm run prisma:seed",
-    "add-images": "node scripts/add-product-images.js"
+    "add-images": "node scripts/add-product-images.js",
+    "update-images": "node scripts/update-all-product-images.js"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.940.0",
