@@ -25,7 +25,7 @@ const integrationsRoutes = require('./routes/integrations');
 const wishlistRoutes = require('./routes/wishlist');
 const financialsRoutes = require('./routes/financials');
 const adminRoutes = require('./routes/admin');
-const mediaRoutes = require('./routes/media');
+// const mediaRoutes = require('./routes/media'); // S3 integration - paused for now
 
 const app = express();
 const prisma = new PrismaClient({
@@ -82,7 +82,7 @@ app.use('/integrations', integrationsRoutes);
 app.use('/wishlist', wishlistRoutes);
 app.use('/financials', financialsRoutes);
 app.use('/admin', adminRoutes);
-app.use('/media', mediaRoutes);
+// app.use('/media', mediaRoutes); // S3 integration - paused for now
 
 // Error handling middleware
 app.use((err, req, res, next) => {
