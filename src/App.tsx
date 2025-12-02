@@ -826,7 +826,7 @@ const AppContent: React.FC = () => {
             <Route path="login" element={<LoginPage />} />
             <Route path="register" element={<RegisterPage />} />
             <Route path="seller-onboarding" element={<SellerOnboardingPage onAddSeller={addSeller} />} />
-            <Route path="checkout" element={<ProtectedRoute allowedRoles={['customer']}><CheckoutPage onAddOrder={addOrder} /></ProtectedRoute>} />
+            <Route path="checkout" element={<ProtectedRoute><CheckoutPage onAddOrder={addOrder} /></ProtectedRoute>} />
             <Route path="order-confirmation" element={<OrderConfirmationPage />} />
             <Route path="profile" element={<ProtectedRoute allowedRoles={['customer']}><ProfilePage /></ProtectedRoute>} />
             <Route path="orders" element={<ProtectedRoute allowedRoles={['customer']}><OrderHistoryPage orders={orders} /></ProtectedRoute>} />
