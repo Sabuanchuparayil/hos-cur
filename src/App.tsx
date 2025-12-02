@@ -27,26 +27,67 @@ import { ordersApi, productsApi, sellersApi, usersApi, reviewsApi, platformTheme
 import { apiService } from "./services/apiService";
 
 // Lazy load heavy components for code splitting
-const ProductDetail = lazy(() => import('./components/ProductDetail'));
-const CartPage = lazy(() => import('./components/CartPage'));
-const LoginPage = lazy(() => import('./components/LoginPage'));
-const RegisterPage = lazy(() => import('./components/RegisterPage'));
-const ProfilePage = lazy(() => import('./components/ProfilePage'));
-const CheckoutPage = lazy(() => import('./components/CheckoutPage'));
-const OrderConfirmationPage = lazy(() => import('./components/OrderConfirmationPage'));
-const OrderHistoryPage = lazy(() => import('./components/OrderHistoryPage'));
-const OrderDetailPage = lazy(() => import('./components/OrderDetailPage'));
-const WishlistPage = lazy(() => import('./components/WishlistPage'));
-const SearchPage = lazy(() => import('./components/SearchPage'));
-const AboutPage = lazy(() => import('./components/AboutPage'));
-const ContactPage = lazy(() => import('./components/ContactPage'));
-const FAQPage = lazy(() => import('./components/FAQPage'));
-const PrivacyPolicyPage = lazy(() => import('./components/PrivacyPolicyPage'));
-const TermsPage = lazy(() => import('./components/TermsPage'));
-const ShippingPolicyPage = lazy(() => import('./components/ShippingPolicyPage'));
-const ReturnsPolicyPage = lazy(() => import('./components/ReturnsPolicyPage'));
-const SellerOnboardingPage = lazy(() => import('./components/SellerOnboardingPage'));
-const GeminiChat = lazy(() => import('./components/GeminiChat'));
+// FIX: Handle named exports for lazy loading to prevent React error #306
+const ProductDetail = lazy(() => 
+  import('./components/ProductDetail').then(module => ({ default: module.ProductDetail }))
+);
+const CartPage = lazy(() => 
+  import('./components/CartPage').then(module => ({ default: module.CartPage || module.default }))
+);
+const LoginPage = lazy(() => 
+  import('./components/LoginPage').then(module => ({ default: module.LoginPage || module.default }))
+);
+const RegisterPage = lazy(() => 
+  import('./components/RegisterPage').then(module => ({ default: module.RegisterPage || module.default }))
+);
+const ProfilePage = lazy(() => 
+  import('./components/ProfilePage').then(module => ({ default: module.ProfilePage || module.default }))
+);
+const CheckoutPage = lazy(() => 
+  import('./components/CheckoutPage').then(module => ({ default: module.CheckoutPage || module.default }))
+);
+const OrderConfirmationPage = lazy(() => 
+  import('./components/OrderConfirmationPage').then(module => ({ default: module.OrderConfirmationPage || module.default }))
+);
+const OrderHistoryPage = lazy(() => 
+  import('./components/OrderHistoryPage').then(module => ({ default: module.OrderHistoryPage || module.default }))
+);
+const OrderDetailPage = lazy(() => 
+  import('./components/OrderDetailPage').then(module => ({ default: module.OrderDetailPage || module.default }))
+);
+const WishlistPage = lazy(() => 
+  import('./components/WishlistPage').then(module => ({ default: module.WishlistPage || module.default }))
+);
+const SearchPage = lazy(() => 
+  import('./components/SearchPage').then(module => ({ default: module.SearchPage || module.default }))
+);
+const AboutPage = lazy(() => 
+  import('./components/AboutPage').then(module => ({ default: module.AboutPage || module.default }))
+);
+const ContactPage = lazy(() => 
+  import('./components/ContactPage').then(module => ({ default: module.ContactPage || module.default }))
+);
+const FAQPage = lazy(() => 
+  import('./components/FAQPage').then(module => ({ default: module.FAQPage || module.default }))
+);
+const PrivacyPolicyPage = lazy(() => 
+  import('./components/PrivacyPolicyPage').then(module => ({ default: module.PrivacyPolicyPage || module.default }))
+);
+const TermsPage = lazy(() => 
+  import('./components/TermsPage').then(module => ({ default: module.TermsPage || module.default }))
+);
+const ShippingPolicyPage = lazy(() => 
+  import('./components/ShippingPolicyPage').then(module => ({ default: module.ShippingPolicyPage || module.default }))
+);
+const ReturnsPolicyPage = lazy(() => 
+  import('./components/ReturnsPolicyPage').then(module => ({ default: module.ReturnsPolicyPage || module.default }))
+);
+const SellerOnboardingPage = lazy(() => 
+  import('./components/SellerOnboardingPage').then(module => ({ default: module.SellerOnboardingPage || module.default }))
+);
+const GeminiChat = lazy(() => 
+  import('./components/GeminiChat').then(module => ({ default: module.GeminiChat || module.default }))
+);
 
 // Lazy load admin components (largest bundle)
 // FIX: Handle named exports for lazy loading to prevent React error #306
