@@ -7,6 +7,7 @@ import { useLanguage } from '../contexts/LanguageContext';
 import { WishlistButton } from './WishlistButton';
 import { StarRating } from './StarRating';
 import { useTheme } from '../contexts/ThemeContext';
+import { getPrimaryProductImage } from '../utils/imageUtils';
 
 interface ProductCardProps {
   product: ProductWithTotalStock;
@@ -18,33 +19,8 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
   const { t } = useLanguage();
   const { isB2BMode } = useTheme();
   const [isAdded, setIsAdded] = useState(false);
-  // Get primary image, with fallback generation if missing
-  // Always generate a placeholder to ensure images always show
-  const getPrimaryImage = () => {
-    // Check if product has valid media with URL
-    if (product.media && Array.isArray(product.media) && product.media.length > 0 && product.media[0]?.url && product.media[0].url.trim() !== '') {
-      return product.media[0].url;
-    }
-    
-    // Generate fallback placeholder - always return a valid URL
-    const nameEn = typeof product.name === 'object' ? product.name.en : product.name || 'Product';
-    const fandom = product.taxonomy?.fandom || 'Other';
-    const fandomColors: { [key: string]: { bg: string; text: string } } = {
-      'Harry Potter': { bg: '4a0202', text: 'ffffff' },
-      'Lord of the Rings': { bg: '1a1a1a', text: 'd4af37' },
-      'Game of Thrones': { bg: '2c1810', text: 'c9a961' },
-      'Star Wars': { bg: '000000', text: 'ffd700' },
-      'Marvel Cinematic Universe': { bg: '1a1a2e', text: 'e94560' },
-      'Fantastic Beasts': { bg: '2d1b1b', text: 'd4a574' },
-      'DC Universe': { bg: '0a0a0a', text: '0066cc' },
-      'Doctor Who': { bg: '003d6b', text: 'ffffff' },
-      'Studio Ghibli': { bg: '8b9dc3', text: 'ffffff' },
-    };
-    const colors = fandomColors[fandom] || { bg: '1a1a2e', text: 'e94560' };
-    const label = nameEn.length > 30 ? nameEn.substring(0, 30) + '...' : nameEn;
-    return `https://via.placeholder.com/800x800/${colors.bg}/${colors.text}?text=${encodeURIComponent(label)}`;
-  };
-  const primaryImage = getPrimaryImage();
+  // Always get a valid image URL - uses placeholder if no media exists
+  const primaryImage = getPrimaryProductImage(product);
 
   const handleAddToCart = (e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
